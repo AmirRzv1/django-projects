@@ -57,10 +57,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'social_network.urls'
 
+# We tell django where is our templates folder with BASE_DIR
+# and the name of out template folder
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
