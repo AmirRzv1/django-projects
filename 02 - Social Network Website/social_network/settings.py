@@ -30,6 +30,10 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# We set the apps name based on the class they have
+# inside the apps.py file in them which is the pattern is
+# like this : app_name + Config
+# here for example is HomeConfig
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "home.apps.HomeConfig",
+
 ]
 
 MIDDLEWARE = [
