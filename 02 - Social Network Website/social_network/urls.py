@@ -17,8 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# namespace --> this will allow django to search for related url
+# in selected app easier and not to make mistakes in finding same url
+# with the same name
+# tip : always set the namespace to the app name
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("home.urls")),
-    path("account/", include("account.urls"))
+    path("", include("home.urls", namespace="home")),
+    path("account/", include("account.urls", namespace="account"))
 ]

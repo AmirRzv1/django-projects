@@ -3,8 +3,9 @@
 
     {# this is the texts in navbar #}
     <div class="navbar-nav">
-
-      <a class="navbar-brand" href="#">Home</a>
+      {# this usage for url (home:home) tells django go for
+      namespace home and the templ name home and run it#}
+      <a class="navbar-brand" href="{% url 'home:home'%}">Home</a>
       <a class="nav-link active" href="#">Second</a>
 
     </div>
