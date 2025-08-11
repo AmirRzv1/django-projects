@@ -7,4 +7,6 @@ def home(request):
     # folder named templates inside our app and it has a html file
     # and we want to access to it so first the name of the folder in templates
     # then the exact name of our template
-    return render(request, "home/index")
+    # the home i mentioned here is not my app name its the name of my
+    # folder inside the templates folder in home app
+    return render(request, "home/index.html")
