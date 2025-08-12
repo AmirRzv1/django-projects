@@ -3,6 +3,7 @@ from django.views import View
 from .forms import *
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
 
 # Create your views here.
 class UserRegisterView(View):
@@ -31,4 +32,28 @@ class UserRegisterView(View):
             # first namespace then the url name
             return redirect("home:home")
         # if the input vars from user is invalid so we show the page again with the right error message
+        return render(request, self.template_name, {"form": form})
+
+class UserLoginView(View):
+    form_class = UserLoginForm
+    template_name = "account/login.html"
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            username = cd["username"]
+            password = cd["password"]
+            # here we authenticate our user that its pass and username matches
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                # here it login our user based on the user we gave to it
+                login(request, user)
+                messages.success(request, "You logged in successfully", "success")
+                return redirect("home:home")
+            messages.error(request, "Username or Password is wrong", "warning")
         return render(request, self.template_name, {"form": form})
