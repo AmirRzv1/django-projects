@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 
 # Create your views here.
-class RegisterView(View):
+class UserRegisterView(View):
     # we use this kind of naming as a class variable so we stop repeating our self
     form_class = UserRegisterForm
     # we use template name a lot so we set this as a class variable
@@ -25,7 +25,7 @@ class RegisterView(View):
             cd = form.cleaned_data
             username = cd["username"]
             email = cd["email"]
-            password = cd["password"]
+            password = cd["password1"]
             User.objects.create_user(username=username, email=email, password=password)
             messages.success(request, "You Registered Successfully !", "success")
             # first namespace then the url name

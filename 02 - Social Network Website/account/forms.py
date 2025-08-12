@@ -11,7 +11,23 @@ class UserRegisterForm(forms.Form):
     # help_text --> this will be shown near the input when its being rendered
     # widget --> PasswordInput -> this is an extra feature for our form that hide
     # the password we are entering in the form that being shown to us
-    password = forms.CharField(help_text="Dont Use : #$%^&*", widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    password1 = forms.CharField(label="Password" , widget=forms.PasswordInput(attrs={"class": "form-control"}))
+    password2 = forms.CharField(label="Confirm Password", help_text="Dont Use : #$%^&*",
+                                widget=forms.PasswordInput(attrs={"class": "form-control"}))
+
+    # we use this to validate 2 fields which is connected to each other
+    def clean(self):
+        # this gives us the cleaned_data
+        cd = super().clean()
+
+        # using get so if the user dont enter one of these
+        # we see no error and have None instead
+        p1 = cd.get("password1")
+        p2 = cd.get("password2")
+
+        # check if they are present and they are not the same
+        if p1 and p2 and p1 != p2:
+            raise ValidationError("Passwords must match !")
 
 
     # use this type of naming for creating our costume validation
@@ -33,3 +49,4 @@ class UserRegisterForm(forms.Form):
         if username_exists:
             raise ValidationError("This Username already exists try new one !")
         return username
+
