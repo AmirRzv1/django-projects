@@ -84,3 +84,13 @@ class UserLogoutView(LoginRequiredMixin, View):
         logout(request)
         messages.success(request, f"User '{username}' Logout Successfully!", "success")
         return redirect("home:home")
+
+# this LoginRequiredMixin only let the logged in users to see the profile
+class UserProfileView(LoginRequiredMixin, View):
+    # this user_id is the id which comes from the url and we get it here
+    def get(self, request, user_id):
+        # here we get the related user data and send it to the related template file
+        user = User.objects.get(id=user_id)
+        return render(request, "account/profile.html", {"user": user})
+
+
