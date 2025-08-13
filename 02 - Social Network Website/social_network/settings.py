@@ -137,3 +137,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # for login url and path.
 # with this it will be fine
 LOGIN_URL = "/account/login/"
+
+# this list tells the django where are our costume or its built-in authentications are.
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "account.authenticate.EmailBackend",
+]
