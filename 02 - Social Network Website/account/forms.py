@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 class UserRegisterForm(forms.Form):
-    # class if for defining a bootsrap class for example for better ui
-    # placeholder -> to put a phantom text in the field to user
+    # class for defining a bootstrap class for example for better ui
+    # placeholder -> to put a phantom text in the field for user
     username = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control","placeholder": "SidAmir"}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-control",
                                                             "placeholder": "s.amirhosein.rzv@gmail.com"}))
