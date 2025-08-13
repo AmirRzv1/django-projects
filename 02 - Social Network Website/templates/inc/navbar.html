@@ -7,10 +7,16 @@
       <a class="navbar-brand" href="{% url 'home:home' %}">Home</a>
       <div class="navbar-nav">
         {% if request.user.is_authenticated %}
-        <a class="nav-link active" href="{% url 'account:user_logout' %}">Logout</a>
+
+        {# with request we have access to the user because the user already logged in #}
+        {# and we use that to grab the id and send it with the url #}
+        <a class="nav-link active text-primary" href="{% url 'account:user_profile' request.user.id %}">Profile</a>
+        <a class="nav-link active text-danger" href="{% url 'account:user_logout' %}">Logout</a>
+
         {% else %}
         <a class="nav-link active" href="{% url 'account:user_register' %}">Register</a>
         <a class="nav-link active" href="{% url 'account:user_login' %}">Login</a>
+
         {% endif %}
       </div>
     </div>
