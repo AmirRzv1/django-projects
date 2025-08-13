@@ -4,6 +4,7 @@ from .forms import *
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
 class UserRegisterView(View):
@@ -77,7 +78,7 @@ class UserLoginView(View):
 
 # this is for user log out we just need to
 # call the function and pass the request to it
-class UserLogoutView(View):
+class UserLogoutView(LoginRequiredMixin, View):
     def get(self, request):
         username = request.user.username
         logout(request)

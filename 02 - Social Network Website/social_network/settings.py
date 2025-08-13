@@ -131,3 +131,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# we set this to tell django if we are using LoginRequiredMixin for
+# limiting access for login users we need to tell him the right address
+# for login url and path.
+# with this it will be fine
+LOGIN_URL = "/account/login/"
