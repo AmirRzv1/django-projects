@@ -12,6 +12,11 @@ class Post(models.Model):
     # this is a string for reading urls better
     slug = models.SlugField()
     # first created - only once
-    created = models.DateTimeField()
+    created = models.DateTimeField(auto_now_add=True)
     # each updates for post - multiple time
-    updated = models.DateTimeField()
+    updated = models.DateTimeField(auto_now=True)
+
+    # after adding this part there is no need to migrate
+    # because its a action - after changing fields we need it
+    def __str__(self):
+        return f"{self.user}: {self.slug}"
