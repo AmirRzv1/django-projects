@@ -13,7 +13,7 @@ class UserRegisterView(View):
     # we use template name a lot so we set this as a class variable
     template_name = "account/register.html"
 
-    # this mehod runs before others and take the control first
+    # this method runs before others and take the control first
     # in this case i want to check that if the user already logged in
     # so i dont show him the register page again
     def dispatch(self, request, *args, **kwargs):
