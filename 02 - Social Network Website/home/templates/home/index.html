@@ -7,7 +7,7 @@
     {% for post in posts %}
 
       {# this truncatewords will slice the post body to show lower characters #}
-      <a href="" class="card-body"> {{ post.body|truncatewords:8 }}</a>
+      <a href="{% url 'post:post_detail' post.id post.slug %}" class="card-body"> {{ post.body|truncatewords:8 }}</a>
 
     {% endfor %}
   </div>
