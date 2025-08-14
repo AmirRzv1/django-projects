@@ -2,4 +2,13 @@
 
 {% block content%}
   <p> This is index file which inherit from base.html </p>
+
+  <div class="card">
+    {% for post in posts %}
+
+      {# this truncatewords will slice the post body to show lower characters #}
+      <a href="" class="card-body"> {{ post.body|truncatewords:8 }}</a>
+
+    {% endfor %}
+  </div>
 {% endblock %}
