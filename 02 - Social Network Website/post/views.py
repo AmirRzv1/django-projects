@@ -14,11 +14,11 @@ class PostDetailView(View):
         pass
 
 class PostDeleteView(LoginRequiredMixin, View):
-    def post(self, request, post_id):
+    def get(self, request, post_id):
         user = request.user.id
-        owner = Post.objects.get(pk=post_id)
-        if user == owner.user.id:
-            Post.objects.remove(id=post_id)
+        post = Post.objects.get(pk=post_id)
+        if user == post.user.id:
+            post.delete()
             messages.success(request, "Post Deleted Successfully !", "success")
             return redirect("home:home")
         messages.warning(request, "You are not the owner of the post !")
