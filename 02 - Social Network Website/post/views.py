@@ -3,6 +3,7 @@ from django.views import View
 from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from .forms import PostUpdateForm
 
 # Create your views here.
 class PostDetailView(View):
@@ -24,3 +25,12 @@ class PostDeleteView(LoginRequiredMixin, View):
         messages.warning(request, "You are not the owner of the post !")
         return redirect("home:home")
 
+class PostUpdateView(LoginRequiredMixin, View):
+    form_class = PostUpdateForm
+
+    def get(self, request, post_id):
+        form = self.form_class(request.POST)
+        return render(request, "post/post_update.html")
+
+    def post(self, request, post_id):
+        pass
