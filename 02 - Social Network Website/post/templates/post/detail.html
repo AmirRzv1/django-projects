@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
+  {% if post.user.id == request.user.id %}
+    <a href="{% url 'post:post_delete' post.id %}" class="btn btn-danger"> Delete </a>
+  {% endif %}
   {# in date miad va nahve namayesh tarikh ro avaz mikone ke ba horof mizarimesh#}
-  <p> {{ post.user.username }} | {{ post.updated|date:"Y-M" }}</p>
+  <p>
+    <a href="{% url 'account:user_profile' post.user.id %}"> {{ post.user.username }} </a>
+    | {{ post.updated|date:"Y-M" }}
+  </p>
   <p> {{ post.body }} </p>
 
 {% endblock %}
