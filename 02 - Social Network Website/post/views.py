@@ -28,9 +28,19 @@ class PostDeleteView(LoginRequiredMixin, View):
 class PostUpdateView(LoginRequiredMixin, View):
     form_class = PostUpdateForm
 
+    # dispatch here checks that the user which is trying to update
+    # is the real owner or not.
+    # if he is no the owner shows an error.
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user.id
+        post = Post.objects.get(pk=kwargs["post_id"])
+        if not user == post.user.id:
+            messages.warning(request, "You are not the owner ! ", "danger")
+            return redirect("home:home")
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request, post_id):
-        form = self.form_class(request.POST)
-        return render(request, "post/post_update.html")
+        pass
 
     def post(self, request, post_id):
         pass

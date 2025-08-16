@@ -1,4 +1,7 @@
 from django import forms
+from .models import Post
 
-class PostUpdateForm(forms.Form):
-    body = forms.CharField()
+class PostUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ["body"]
