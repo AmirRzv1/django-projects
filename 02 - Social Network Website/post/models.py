@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 
 # Create your models here.
@@ -20,3 +21,9 @@ class Post(models.Model):
     # because its a action - after changing fields we need it
     def __str__(self):
         return f"{self.user}: {self.slug}"
+
+    # we use this function to define the url for our post so when we want
+    # to call it and use it it is easier and we just say the function name
+    # in out templates
+    def get_absolute_url(self):
+        return reverse("post:post_detail", args=[self.id, self.slug])

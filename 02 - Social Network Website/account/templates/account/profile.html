@@ -6,7 +6,7 @@
 
   <div class="card">
     {% for post in posts %}
-      <p class="card-body"> {{ post.body }}</p>
+      <a href="{{ post.get_absolute_url }}" class="card-body"> {{ post.body }}</a>
     {% endfor%}
   </div>
 
