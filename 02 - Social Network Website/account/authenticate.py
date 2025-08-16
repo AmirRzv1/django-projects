@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 # this file and this class is for overwriting the
-# built in authenticate so the process work with email too
+# built-in authenticate so the process work with email too
 
 class EmailBackend:
     # we set these default arguments

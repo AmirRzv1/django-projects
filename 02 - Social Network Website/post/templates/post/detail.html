@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+  {# in date miad va nahve namayesh tarikh ro avaz mikone ke ba horof mizarimesh#}
+  <p> {{ post.user.username }} | {{ post.updated|date:"Y-M" }}</p>
   <p> {{ post.body }} </p>
+
 {% endblock %}
