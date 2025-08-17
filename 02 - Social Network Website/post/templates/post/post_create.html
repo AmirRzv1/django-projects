@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <form novalidate >
+  <form novalidate method="post" action="">
 
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="button" value="Create Post">
+    <input type="submit" value="Create Post">
 
   </form>
 {% endblock %}
