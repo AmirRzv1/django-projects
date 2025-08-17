@@ -40,7 +40,12 @@ class PostUpdateView(LoginRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, post_id):
-        pass
+        # here we get the related post from our database
+        # and send it to the form as instance in order to show
+        # the previous text which the body field had.
+        post = Post.objects.get(pk=post_id)
+        form = self.form_class(instance=post)
+        return render(request, "post/post_update.html", {"form": form})
 
     def post(self, request, post_id):
         pass
