@@ -3,7 +3,7 @@ from django.views import View
 from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from .forms import PostUpdateForm
+from .forms import *
 from django.utils.text import slugify
 
 # Create your views here.
@@ -76,3 +76,16 @@ class PostUpdateView(LoginRequiredMixin, View):
             new_post.save()
             messages.success(request, "you updated this post", "success")
             return redirect("post:post_detail", post.id, post.slug)
+
+class PostCreateView(LoginRequiredMixin, View):
+    form_class = PostCreateForm
+
+    def dispatch(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, "post/post_create.html", {"form": form})
+
+    def get(self, request):
+        pass
+
+    def post(self, request):
+        pass
