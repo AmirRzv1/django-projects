@@ -29,27 +29,40 @@ class PostDeleteView(LoginRequiredMixin, View):
 class PostUpdateView(LoginRequiredMixin, View):
     form_class = PostUpdateForm
 
+    # in the setup we write a code that take th related record from our database
+    # so we use it in other methods that we want
+    # with this we only hit db once
+    def setup(self, request, *args, **kwargs):
+        # we save it in self so it will be reachable
+        self.post_isntance = Post.objects.get(pk=kwargs["post_id"])
+        # we must call the super class
+        return super().setup(request, *args, **kwargs)
+
+
     # dispatch here checks that the user which is trying to update
     # is the real owner or not.
     # if he is no the owner shows an error.
     def dispatch(self, request, *args, **kwargs):
         user = request.user.id
-        post = Post.objects.get(pk=kwargs["post_id"])
+        post = self.post_isntance
         if not user == post.user.id:
             messages.warning(request, "You are not the owner ! ", "danger")
             return redirect("home:home")
         return super().dispatch(request, *args, **kwargs)
 
+    # here we dont use post_id anymore, to replace it we use
+    # args and kwargs to see no error. the reason is our url will send
+    # post_id anyway so we need to have it
     def get(self, request, post_id):
         # here we get the related post from our database
         # and send it to the form as instance in order to show
         # the previous text which the body field had.
-        post = Post.objects.get(pk=post_id)
+        post = self.post_isntance
         form = self.form_class(instance=post)
         return render(request, "post/post_update.html", {"form": form})
 
     def post(self, request, post_id):
-        post = Post.objects.get(pk=post_id)
+        post = self.post_isntance
         # this request.POST
         form = self.form_class(request.POST, instance=post)
         if form.is_valid():
