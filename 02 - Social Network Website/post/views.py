@@ -48,4 +48,10 @@ class PostUpdateView(LoginRequiredMixin, View):
         return render(request, "post/post_update.html", {"form": form})
 
     def post(self, request, post_id):
-        pass
+        post = Post.objects.get(pk=post_id)
+        # this request.POST
+        form = self.form_class(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "you updated this post", "success")
+            return redirect("post:post_detail", post.id, post.slug)
