@@ -4,6 +4,7 @@ from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .forms import PostUpdateForm
+from django.utils.text import slugify
 
 # Create your views here.
 class PostDetailView(View):
@@ -52,6 +53,13 @@ class PostUpdateView(LoginRequiredMixin, View):
         # this request.POST
         form = self.form_class(request.POST, instance=post)
         if form.is_valid():
-            form.save()
+            # because after updating the slug dont change we need to manage it manually
+            # so first we tell save method, dont store and save the new record just keep it
+            # because i want to give you new data to store, we do this by commit=False
+            new_post = form.save(commit=False)
+            # this slugify is for converting our data and body from user to a
+            # valid slug with the built-in utils in django
+            new_post.slug = slugify(form.cleaned_data["body"][:30])
+            new_post.save()
             messages.success(request, "you updated this post", "success")
             return redirect("post:post_detail", post.id, post.slug)
