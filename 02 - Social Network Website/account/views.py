@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .forms import *
 from django.contrib.auth.models import User
@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from post.models import Post
+from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
 
 # Create your views here.
 class UserRegisterView(View):
@@ -96,3 +98,20 @@ class UserProfileView(LoginRequiredMixin, View):
         return render(request, "account/profile.html", {"user": user, "posts": posts})
 
 
+# we use built-in views in django to reset our password
+class UserPasswordResetView(auth_views.PasswordResetView):
+    # use this to show the user a form to enter its email so we can send
+    # a link to the user
+    template_name = "account/password_reset_form.html"
+
+    # after everything is done and with no error it needs a page
+    # to go to, so we gave it to django
+    # tip: we use reverse_lazy to see no error because if we dont use it
+    # it trys to create and use a url which is not yet created so we have error
+    # the reason is the python variable evaluation.
+    # this reverser_lazy wait until all the urls are loaded then it will be
+    # executed so we dont see any error.
+    success_url = reverse_lazy("account:password_reset_done")
+
+    # this is the email we want to send to user
+    email_template_name = "account/password_reset_email.html"
