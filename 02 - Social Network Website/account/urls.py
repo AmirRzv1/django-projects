@@ -9,5 +9,7 @@ urlpatterns = [
     path("profile/<int:user_id>/", UserProfileView.as_view(), name="us er_profile"),
     path("reset/", UserPasswordResetView.as_view(), name="reset_password"),
     path("reset/done/", UserPasswordResetDoneView.as_view(), name="password_reset_done"),
+    path("confirm/<uidb64>/<token>/", UserPasswordResetCondfirmView.as_view(), name="password_reset_confirm"),
+
 
 ]
