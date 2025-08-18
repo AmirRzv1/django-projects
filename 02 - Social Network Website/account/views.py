@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.views import View
 from .forms import *
 from django.contrib.auth.models import User
@@ -91,7 +91,7 @@ class UserProfileView(LoginRequiredMixin, View):
     # this user_id is the id which comes from the url and we get it here
     def get(self, request, user_id):
         # here we get the related user data and send it to the related template file
-        user = User.objects.get(id=user_id)
+        user = get_object_or_404(Post, id=user_id)
         posts = Post.objects.filter(user=user)
         return render(request, "account/profile.html", {"user": user, "posts": posts})
 

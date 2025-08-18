@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .models import Post
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,7 +9,11 @@ from django.utils.text import slugify
 # Create your views here.
 class PostDetailView(View):
     def get(self, request, post_id, post_slug):
-        post = Post.objects.get(pk=post_id, slug=post_slug)
+        # we use get_object_or_404 in order to show the user 404 error when trying
+        # to fetch something which is not present in our database instead of server error 500
+        post = get_object_or_404(Post, pk=post_id, slug=post_slug)
+        # old way of getting the data
+        # post = Post.objects.get(pk=post_id, slug=post_slug)
         return render(request, "post/detail.html", {"post": post})
 
     def post(self, request):
@@ -18,7 +22,7 @@ class PostDetailView(View):
 class PostDeleteView(LoginRequiredMixin, View):
     def get(self, request, post_id):
         user = request.user.id
-        post = Post.objects.get(pk=post_id)
+        post = get_object_or_404(Post, pk=post_id)
         if user == post.user.id:
             post.delete()
             messages.success(request, "Post Deleted Successfully !", "success")
@@ -34,7 +38,7 @@ class PostUpdateView(LoginRequiredMixin, View):
     # with this we only hit db once
     def setup(self, request, *args, **kwargs):
         # we save it in self so it will be reachable
-        self.post_isntance = Post.objects.get(pk=kwargs["post_id"])
+        self.post_isntance = get_object_or_404(Post, pk=kwargs["post_id"])
         # we must call the super class
         return super().setup(request, *args, **kwargs)
 
