@@ -93,7 +93,7 @@ class UserProfileView(LoginRequiredMixin, View):
     # this user_id is the id which comes from the url and we get it here
     def get(self, request, user_id):
         # here we get the related user data and send it to the related template file
-        user = get_object_or_404(Post, id=user_id)
+        user = get_object_or_404(User, id=user_id)
         posts = Post.objects.filter(user=user)
         return render(request, "account/profile.html", {"user": user, "posts": posts})
 
@@ -127,3 +127,6 @@ class UserPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
     # after everything is done with no error where should it go
     success_url = reverse_lazy("account:password_reset_complete")
+
+class UserPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
+    template_name = "account/password_reset_complete.html"
