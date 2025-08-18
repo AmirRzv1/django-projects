@@ -115,3 +115,8 @@ class UserPasswordResetView(auth_views.PasswordResetView):
 
     # this is the email we want to send to user
     email_template_name = "account/password_reset_email.html"
+
+# this show the user a success message
+class UserPasswordResetDoneView(auth_views.PasswordResetDoneView):
+    # a page with the success message for user to see
+    template_name = "account/password_reset_done.html"
