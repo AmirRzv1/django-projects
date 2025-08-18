@@ -144,3 +144,19 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "account.authenticate.EmailBackend",
 ]
+
+# Setting up the gmail setting to send our user email
+# 1| default email backend for django
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# 2| where do i need to connect
+EMAIL_HOST = "smtp.gmail.com"
+# 3| what is your out email
+EMAIL_HOST_USER = "amir.razavi22@gmail.com"
+# 4| what port to use, we use gmail port
+EMAIL_PORT = 587
+# 5| password which we get from our google profile
+EMAIL_HOST_PASSWORD = "ktlihmpqtuoinwbs"
+# 6| secure version of how to send email
+EMAIL_USE_TLS = True
+# 7| this is a signiture of each email
+DEFAULT_FROM_EMAIL = "Amir Razavi Email Center"
