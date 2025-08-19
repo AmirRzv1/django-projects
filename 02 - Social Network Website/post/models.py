@@ -17,6 +17,13 @@ class Post(models.Model):
     # each updates for post - multiple time
     updated = models.DateTimeField(auto_now=True)
 
+    # after defining our fields we need to define Meta
+    # for sorting and ordering option
+    # tip : this is globally for ordering
+    class Meta:
+        # this will order based on the field we gave
+        ordering = ["-created"]
+
     # after adding this part there is no need to migrate
     # because its a action - after changing fields we need it
     def __str__(self):

@@ -5,7 +5,17 @@ from post.models import Post
 # Camel Case naming for classes
 class HomeView(View):
     def get(self, request):
+        # new code with ordering
+        # this is like all and takes all the data but we cant have order
+        # by passing the field to be ordered
+        # for reverse ordering we can add a hyphen so it will be ordered reverse
+        # tip : this type of ordering only works on this method and just here
+        # if we want the whole model to be ordered we need to use Meta in models
+        # posts = Post.objects.order_by("-created")
+
+        # old code
         posts = Post.objects.all()
+
         # This kind of mapping for temp files is because we made an inner
         # folder named templates inside our app and it has a html file
         # and we want to access to it so first the name of the folder in templates
