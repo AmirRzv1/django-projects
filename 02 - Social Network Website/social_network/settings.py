@@ -150,7 +150,7 @@ AUTHENTICATION_BACKENDS = [
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # 2| where do i need to connect
 EMAIL_HOST = "smtp.gmail.com"
-# 3| what is your out email
+# 3| what is your email
 EMAIL_HOST_USER = "amir.razavi22@gmail.com"
 # 4| what port to use, we use gmail port
 EMAIL_PORT = 587
