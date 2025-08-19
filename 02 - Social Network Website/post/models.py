@@ -8,7 +8,8 @@ class Post(models.Model):
     # make relation to the User model so the post connect to one user
     # each user many post - each post belong to one user
     # OneToMany Relation
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # related_name -> we use it to have access in reverse relation in our models
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     body = models.TextField()
     # this is a string for reading urls better
     slug = models.SlugField()

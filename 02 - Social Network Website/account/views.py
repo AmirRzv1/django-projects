@@ -94,7 +94,10 @@ class UserProfileView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         # here we get the related user data and send it to the related template file
         user = get_object_or_404(User, id=user_id)
-        posts = Post.objects.filter(user=user)
+        # this is the usage of related name and its working fine
+        posts = user.posts.all()
+        # old code -> use related name instead
+        # posts = Post.objects.filter(user=user)
         return render(request, "account/profile.html", {"user": user, "posts": posts})
 
 
