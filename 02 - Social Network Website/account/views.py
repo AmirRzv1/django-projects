@@ -53,6 +53,13 @@ class UserLoginView(View):
     form_class = UserLoginForm
     template_name = "account/login.html"
 
+    # we get the next
+    def setup(self, request, *args, **kwargs):
+        # because next is in url we can access to it with GET method
+        # second get is the python method
+        self.next = request.GET.get("next")
+        return super().setup(request, *args, **kwargs)
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated :
             messages.warning(request, "You already logged in", "warning")
@@ -76,6 +83,9 @@ class UserLoginView(View):
                 # here it login our user based on the user we gave to it
                 login(request, user)
                 messages.success(request, f"User '{user}' logged in successfully", "success")
+                # if we have sth in our next we redirect the user to that page
+                if self.next:
+                    return redirect(self.next)
                 return redirect("home:home")
             messages.error(request, "Username or Password is wrong", "warning")
         return render(request, self.template_name, {"form": form})
