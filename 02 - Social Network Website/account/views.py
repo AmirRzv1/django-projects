@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from post.models import Post
+from .models import Relation
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
 
@@ -133,3 +134,26 @@ class UserPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 class UserPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = "account/password_reset_complete.html"
+
+
+class UserFollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        # get the user we want to follow
+        user_to_follow = User.objects.get(pk=user_id)
+        # from_user : is the user who wants to follow someone
+        # to_user : is the person we want to follow
+        relation = Relation.objects.filter(from_user=request.user, to_user=user_to_follow)
+        # check that the user didnt follow before
+        if relation.exists():
+            messages.error(request, "You are already following this user !")
+        else:
+            # this "create" will save it automatically
+            Relation.objects.create(from_user=request.user, to_user=user_to_follow)
+            messages.success(request, "You followed this user !", "success")
+        return redirect("account:user_profile", user_to_follow.id)
+
+
+
+class UserUnfollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        pass
