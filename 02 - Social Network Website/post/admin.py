@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post
+from .models import Post, Comment
 
 # creating the costume admin here
 # way 1 -> we also can register the setting with the decorator
@@ -19,3 +19,8 @@ class PostAdmin(admin.ModelAdmin):
 # way 2 --> we can register the model and the setting for our admin panel like this
 # after defining the class and its feature add the class name here
 # admin.site.register(Post, PostAdmin)
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ["user", "post", "is_reply", "created"]
+    raw_id_fields = ["user", "post", "reply"]
