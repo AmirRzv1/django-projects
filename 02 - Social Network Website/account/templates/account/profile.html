@@ -4,9 +4,17 @@
 
   <h2 class="text-center"> {{ user.username }} </h2>
   {% if user.id == request.user.id %}
-  <a class="btn btn-primary" href="{% url 'post:post_create' %}"> Create Post </a>
+    <a class="btn btn-primary" href="{% url 'post:post_create' %}"> Create Post </a>
+  {% endif %}
+
+  {# first we check we are not seeing our own profile and im not following the user#}
+  {% if user.id != request.user.id and not is_following %}
+    <a class="btn btn-primary" href="{% url 'account:user_follow' user.id %}"> Follow </a>
+  {% elif user.id != request.user.id and is_following%}
+    <a class="btn btn-primary" href="{% url 'account:user_unfollow' user.id %}"> UnFollow </a>
   {% endif %}
   <hr/>
+
   <div class="card">
     {% for post in posts %}
       <a href="{{ post.get_absolute_url }}" class="card-body"> {{ post.body }}</a>

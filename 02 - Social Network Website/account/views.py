@@ -93,13 +93,24 @@ class UserLogoutView(LoginRequiredMixin, View):
 class UserProfileView(LoginRequiredMixin, View):
     # this user_id is the id which comes from the url and we get it here
     def get(self, request, user_id):
+        is_following = False
+
         # here we get the related user data and send it to the related template file
         user = get_object_or_404(User, id=user_id)
         # this is the usage of related name and its working fine
         posts = user.posts.all()
         # old code -> use related name instead
         # posts = Post.objects.filter(user=user)
-        return render(request, "account/profile.html", {"user": user, "posts": posts})
+
+        # if the user which is seeing the profile have the relation with this user
+        # we are showig the profile, they have realtion and the following is on
+        # otherwise they dont have relation
+        # tip : we need this to show the follow or unfollow button to user
+        relation = Relation.objects.filter(from_user=request.user, to_user=user_id)
+        if relation.exists():
+            is_following = True
+
+        return render(request, "account/profile.html", {"user": user, "posts": posts, "is_following": is_following})
 
 
 # we use built-in views in django to reset our password
