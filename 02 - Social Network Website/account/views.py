@@ -156,4 +156,26 @@ class UserFollowView(LoginRequiredMixin, View):
 
 class UserUnfollowView(LoginRequiredMixin, View):
     def get(self, request, user_id):
-        pass
+        user_to_unfollow = User.objects.get(pk=user_id)
+        relation = Relation(from_user = request.user, to_user=user_to_unfollow)
+        if relation.exists():
+            relation.delete()
+            messages.success(request, "You unfollowed this user !", "success")
+        else:
+            messages.error(request, "you are not following this user !", "danger")
+        return redirect("account:user_profile", user_to_unfollow.id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
