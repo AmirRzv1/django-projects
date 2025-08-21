@@ -5,9 +5,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .forms import *
 from django.utils.text import slugify
+from .forms import CommentCreateForm
 
 # Create your views here.
 class PostDetailView(View):
+    form_class = CommentCreateForm
+
     def get(self, request, post_id, post_slug):
         # we use get_object_or_404 in order to show the user 404 error when trying
         # to fetch something which is not present in our database instead of server error 500
@@ -16,7 +19,7 @@ class PostDetailView(View):
         # post = Post.objects.get(pk=post_id, slug=post_slug)
         # main comments with relate_name
         comments = post.pcomments.filter(is_reply=False)
-        return render(request, "post/detail.html", {"post": post, "comments": comments})
+        return render(request, "post/detail.html", {"post": post, "comments": comments, "form": self.form_class})
 
     def post(self, request):
         pass
