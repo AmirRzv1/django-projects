@@ -6,23 +6,42 @@ from django.contrib import messages
 from .forms import *
 from django.utils.text import slugify
 from .forms import CommentCreateForm
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 class PostDetailView(View):
     form_class = CommentCreateForm
 
-    def get(self, request, post_id, post_slug):
+    # we want to use post several times so we add it here
+    def setup(self, request, *args, **kwargs):
+        self.post_isntance = get_object_or_404(Post, pk=kwargs["post_id"], slug=kwargs["post_slug"])
+        return super().setup(request, *args, **kwargs)
+
+
+    def get(self, request, *args, **kwargs):
         # we use get_object_or_404 in order to show the user 404 error when trying
         # to fetch something which is not present in our database instead of server error 500
-        post = get_object_or_404(Post, pk=post_id, slug=post_slug)
         # old way of getting the data
         # post = Post.objects.get(pk=post_id, slug=post_slug)
         # main comments with relate_name
-        comments = post.pcomments.filter(is_reply=False)
-        return render(request, "post/detail.html", {"post": post, "comments": comments, "form": self.form_class})
+        comments = self.post_isntance.pcomments.filter(is_reply=False)
+        return render(request, "post/detail.html", {"post": self.post_isntance, "comments": comments, "form": self.form_class})
 
-    def post(self, request):
-        pass
+    # this will limit the access to logged-in user only
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # the only thing we will save is body, but we want more data so we use commit
+            # equal False to extract and send the data manually
+            new_comment = form.save(commit=False)
+            new_comment.user = request.user
+            new_comment.post = self.post_isntance
+            new_comment.save()
+            messages.success(request, "Comment submitted successfully !", "success")
+            return redirect("post:post_detail", self.post_isntance.id, self.post_isntance.slug)
+
 
 class PostDeleteView(LoginRequiredMixin, View):
     def get(self, request, post_id):
