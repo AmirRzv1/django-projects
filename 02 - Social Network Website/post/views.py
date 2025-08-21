@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 # Create your views here.
 class PostDetailView(View):
     form_class = CommentCreateForm
+    form_class_reply = CommentReplyForm
 
     # we want to use post several times so we add it here
     def setup(self, request, *args, **kwargs):
@@ -26,7 +27,8 @@ class PostDetailView(View):
         # post = Post.objects.get(pk=post_id, slug=post_slug)
         # main comments with relate_name
         comments = self.post_isntance.pcomments.filter(is_reply=False)
-        return render(request, "post/detail.html", {"post": self.post_isntance, "comments": comments, "form": self.form_class})
+        return render(request, "post/detail.html", {"post": self.post_isntance, "comments": comments,
+                                                    "form": self.form_class, "reply_form": self.form_class_reply})
 
     # this will limit the access to logged-in user only
     @method_decorator(login_required)
@@ -123,3 +125,5 @@ class PostCreateView(LoginRequiredMixin, View):
             messages.success(request, "Post Created Successfully !", "success")
             return redirect("post:post_detail", new.id, new.slug)
         return redirect("home:home")
+
+

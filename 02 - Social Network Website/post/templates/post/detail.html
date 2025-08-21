@@ -34,6 +34,14 @@
       <p class="card-header"> {{ comment.user }} | {{ comment.created|timesince }} </p>
       <p class="card-body"> {{ comment.body }} </p>
 
+      {% if request.user.is_authenticated %}
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input type="submit" value="Send">
+        </form>
+      {% endif%}
+
       {# this with will move the command to a variable name and we use the variable for simplicity#}
       {% with replies=comment.rcomments.all %}
 
