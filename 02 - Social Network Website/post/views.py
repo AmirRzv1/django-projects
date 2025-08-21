@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from .models import Post, Comment
+from .models import *
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from .forms import *
 from django.utils.text import slugify
-from .forms import CommentCreateForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
@@ -142,3 +141,20 @@ class PostAddReplyView(LoginRequiredMixin, View):
             reply.save()
             messages.success(request, "Reply submitted successfully !", "success")
         return redirect("post:post_detail", post.id, post.slug)
+
+class PostLikeView(LoginRequiredMixin, View):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, pk=post_id)
+        like = Vote.objects.filter(post=post, user=request.user).exists()
+        if like:
+            messages.error(request, "You already liked this post !", "danger")
+        else:
+            Vote.objects.create(post=post, user=request.user)
+            messages.success(request, "You Liked this post !", "success")
+        return redirect("post:post_detail", post.id, post.slug)
+
+
+
+
+
+
