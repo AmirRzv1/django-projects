@@ -11,5 +11,19 @@
     | {{ post.updated|date:"Y-M" }}
   </p>
   <p> {{ post.body }} </p>
+  <hr/>
+    <p> Total comments = {{ comments.count }} </p>
+  <hr/>
+  {% for comment in comments %}
+    <div class="card bg-dark text-white">
+      {# this timesince is a filter which tell us how much time passed #}
+      <p class="card-header"> {{ comment.user }} | {{ comment.created|timesince }} </p>
+      <p class="card-body"> {{ comment.body }} </p>
+    </div>
+  {# this empty only runs when there is nothing in out for loop we use it for no comments#}
+  {% empty %}
+    <p> No Comments yet ! </p>
+  {% endfor %}
+
 
 {% endblock %}

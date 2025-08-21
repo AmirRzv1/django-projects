@@ -14,7 +14,9 @@ class PostDetailView(View):
         post = get_object_or_404(Post, pk=post_id, slug=post_slug)
         # old way of getting the data
         # post = Post.objects.get(pk=post_id, slug=post_slug)
-        return render(request, "post/detail.html", {"post": post})
+        # main comments with relate_name
+        comments = post.pcomments.filter(is_reply=False)
+        return render(request, "post/detail.html", {"post": post, "comments": comments})
 
     def post(self, request):
         pass
