@@ -23,6 +23,7 @@
       {{ form.as_p }}
       <input type="submit" value="Send Comment !">
     </form>
+  <br />
   {% else %}
     <p class="alert alert-danger"> Only logged in users can send comment</p>
   {% endif %}
@@ -32,7 +33,16 @@
       {# this timesince is a filter which tell us how much time passed #}
       <p class="card-header"> {{ comment.user }} | {{ comment.created|timesince }} </p>
       <p class="card-body"> {{ comment.body }} </p>
+
+      {# this with will move the command to a variable name and we use the variable for simplicity#}
+      {% with replies=comment.rcomments.all %}
+
+      {% for reply in replies %}
+        <p class="bg-primary p-3 m-2"> {{ reply.user }} <br /> {{ reply.body }} </p>
+      {% endfor %}
+      {% endwith %}
     </div>
+    <br />
   {# this empty only runs when there is nothing in out for loop we use it for no comments#}
   {% empty %}
     <p> No Comments yet ! </p>
