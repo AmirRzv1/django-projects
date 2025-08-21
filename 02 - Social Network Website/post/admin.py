@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Comment
+from .models import Post, Comment, Vote
 
 # creating the costume admin here
 # way 1 -> we also can register the setting with the decorator
@@ -24,3 +24,5 @@ class PostAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ["user", "post", "is_reply", "created"]
     raw_id_fields = ["user", "post", "reply"]
+
+admin.site.register(Vote)

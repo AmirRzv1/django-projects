@@ -36,6 +36,23 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse("post:post_detail", args=[self.id, self.slug])
 
+    # self is the post we are seeing
+    # with this we count the likes
+    def like_count(self):
+        return self.pvotes.count()
+
+    def user_can_like(self, user):
+        # with True we understand that user already liked the post
+        # with False its the otherwise
+        user_like = user.uvotes.filter(post=self).exists()
+        if user_like:
+            return True
+        else:
+            False
+
+
+
+
 class Comment(models.Model):
     # which user is commenting
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ucomments")
@@ -61,3 +78,4 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"{self.user} liked {self.post.slug}"
+

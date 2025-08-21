@@ -26,8 +26,14 @@ class PostDetailView(View):
         # post = Post.objects.get(pk=post_id, slug=post_slug)
         # main comments with relate_name
         comments = self.post_isntance.pcomments.filter(is_reply=False)
+        can_like = False
+
+        if request.user.is_authenticated and  self.post_isntance.user_can_like(request.user):
+            can_like = True
+
         return render(request, "post/detail.html", {"post": self.post_isntance, "comments": comments,
-                                                    "form": self.form_class, "reply_form": self.form_class_reply})
+                                                    "form": self.form_class, "reply_form": self.form_class_reply, "can_like": can_like})
+
 
     # this will limit the access to logged-in user only
     @method_decorator(login_required)
