@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 
 {% block content%}
-  <p> This is index file which inherit from base.html </p>
-
+  <form method="get" action="">
+    {{ form.as_p }}
+    <input type="submit" value="Search">
+  </form>
+  <br/>
   <div class="card">
     {% for post in posts %}
 

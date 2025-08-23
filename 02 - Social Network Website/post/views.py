@@ -161,6 +161,3 @@ class PostLikeView(LoginRequiredMixin, View):
 
 
 
-
-
-
