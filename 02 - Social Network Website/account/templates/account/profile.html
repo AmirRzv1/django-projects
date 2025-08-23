@@ -5,6 +5,7 @@
   <h2 class="text-center"> {{ user.username }} </h2>
   {% if user.id == request.user.id %}
     <a class="btn btn-primary" href="{% url 'post:post_create' %}"> Create Post </a>
+    <a class="btn btn-info" href="{% url 'account:edit_user' %}"> Edit Profile </a>
   {% endif %}
 
   {# first we check we are not seeing our own profile and im not following the user#}

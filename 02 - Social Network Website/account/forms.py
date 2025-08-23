@@ -1,6 +1,7 @@
 from django  import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from .models import Profile
 
 class UserRegisterForm(forms.Form):
     # class for defining a bootstrap class for example for better ui
@@ -55,3 +56,13 @@ class UserRegisterForm(forms.Form):
 class UserLoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control","placeholder": "SidAmir"}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={"class": "form-control"}))
+
+class EditUserForm(forms.ModelForm):
+    # this field is not present at Profile model
+    # and we add this manually which is fine
+    email = forms.EmailField()
+
+    class Meta:
+        model = Profile
+        fields = ["age", "bio"]
+
