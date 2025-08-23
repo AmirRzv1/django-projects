@@ -19,7 +19,10 @@ class HomeView(View):
         # old code
         posts = Post.objects.all()
 
-
+        # we use field lookups to search in our db to find the data we want
+        # syntax = field__field lookups
+        if request.GET.get("search"):
+            posts = posts.filter(body__contains = request.GET["search"])
 
         # This kind of mapping for temp files is because we made an inner
         # folder named templates inside our app and it has a html file
