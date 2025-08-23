@@ -43,6 +43,16 @@ A task management tool with:
 - SQLite3 database as the default backend  
 - **Version 1.0.0** – Future updates will include user-specific Todos and improved structure
 
+### 🌐 Social Network Website  
+A basic social networking platform with:  
+- User registration, login, and logout  
+- Post creation and viewing on the home page  
+- Follow/unfollow users and like/dislike posts  
+- Comment and reply functionality  
+- Class-Based Views, custom authentication, and LoginRequiredMixin  
+- Simple UI, lightweight templates, signals, and extended User model  
+- **Version 1.0.0** – Future updates will improve profiles, UI, and analytics
+
 More apps coming soon...
 
 ---
@@ -56,10 +66,3 @@ I’m committed to:
 - Sharing my journey openly through this repo
 
 ---
-
-## 📦 How to Run
-
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/yourusername/django-mini-projects.git
-   cd django-mini-projects/project_folder
