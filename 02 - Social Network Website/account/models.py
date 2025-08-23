@@ -19,3 +19,6 @@ class Profile(models.Model):
     # from here we add new fields to it
     age = models.PositiveSmallIntegerField(default=0)
     bio = models.TextField(null=True, blank=True)
+
+
+
