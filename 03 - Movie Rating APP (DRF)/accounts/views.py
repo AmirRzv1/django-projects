@@ -7,6 +7,12 @@ from django.contrib.auth.models import User
 
 # Create your views here.
 class AccountCreateView(APIView):
+    def get(self, request):
+        data = User.objects.all()
+        serialized_data = AccountCreateSerializer(instance=data, many=True)
+        return Response(data=serialized_data.data, status=status.HTTP_200_OK)
+
+
 
     def post(self, request):
         serialized_data = AccountCreateSerializer(data=request.data)
