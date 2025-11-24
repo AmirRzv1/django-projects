@@ -1,0 +1,4 @@
+1| karaye marbot be sakhte user ba url o anjam dadam va alan
+ba url mitonam user besazam va serialzer dorost daram barash
+moshkel neshon dadane one ke serializer mikhad va mikham pass ro
+neshon nade be karbar va id ro ham bege dar kenaresh.

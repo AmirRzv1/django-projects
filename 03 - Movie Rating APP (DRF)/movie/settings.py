@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -126,3 +127,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+# {
+#     "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NDA3MDEwNCwiaWF0IjoxNzYzOTgzNzA0LCJqdGkiOiI1OTdkMjI0YTdjNGQ0MTM0YWQzMzcwMmU5OWIyMzFkYiIsInVzZXJfaWQiOiIxIn0.0tLECedj7Hjmj6gdPkOOkCd_PX5UP6fc1NomaAdeeb0",
+#     "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzOTg0MDA0LCJpYXQiOjE3NjM5ODM3MDQsImp0aSI6ImYxMzZiNzg3NDQxZDQzMGZiZDQ2NzE4ZjY2MmM2YWE3IiwidXNlcl9pZCI6IjEifQ.P4zPkwL0QeZoKi2fg68BG1neaFaVhQSsKGmT2-yYptU"
+# }

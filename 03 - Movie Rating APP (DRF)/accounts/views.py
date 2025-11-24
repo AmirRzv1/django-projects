@@ -4,12 +4,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
 from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class AccountCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         data = User.objects.all()
-        serialized_data = AccountCreateSerializer(instance=data, many=True)
+        print(data)
+        serialized_data = AccountShowAllSerializer(instance=data, many=True)
         return Response(data=serialized_data.data, status=status.HTTP_200_OK)
 
 
