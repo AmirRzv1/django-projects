@@ -9,6 +9,9 @@ class Movie(models.Model):
     category = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.title
+
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="reviews")
@@ -16,3 +19,6 @@ class Review(models.Model):
     rate = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
     comment = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.movie.title} - {self.user.username} - rate {self.rate}"
