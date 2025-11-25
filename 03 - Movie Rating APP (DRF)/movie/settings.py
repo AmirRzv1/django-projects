@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Local apps
     "accounts.apps.AccountsConfig",
+    "review.apps.ReviewConfig",
 
     # Third-Party apps
     "rest_framework",
@@ -133,8 +134,3 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
-
-# {
-#     "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NDA3MDEwNCwiaWF0IjoxNzYzOTgzNzA0LCJqdGkiOiI1OTdkMjI0YTdjNGQ0MTM0YWQzMzcwMmU5OWIyMzFkYiIsInVzZXJfaWQiOiIxIn0.0tLECedj7Hjmj6gdPkOOkCd_PX5UP6fc1NomaAdeeb0",
-#     "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzOTg0MDA0LCJpYXQiOjE3NjM5ODM3MDQsImp0aSI6ImYxMzZiNzg3NDQxZDQzMGZiZDQ2NzE4ZjY2MmM2YWE3IiwidXNlcl9pZCI6IjEifQ.P4zPkwL0QeZoKi2fg68BG1neaFaVhQSsKGmT2-yYptU"
-# }
