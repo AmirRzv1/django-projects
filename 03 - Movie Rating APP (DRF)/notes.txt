@@ -2,3 +2,7 @@
 ba url mitonam user besazam va serialzer dorost daram barash
 moshkel neshon dadane one ke serializer mikhad va mikham pass ro
 neshon nade be karbar va id ro ham bege dar kenaresh.
+
+2| be proje baraye khodam authentication ba JWT ro ezafe kardam ke
+karbar baraye sabte nam niaz nadare behesh vali baraye didan karbaraye dige chera
+niaz dare ke hatman login karde bashe
