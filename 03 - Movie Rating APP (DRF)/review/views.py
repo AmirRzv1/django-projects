@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.template.defaulttags import comment
 from rest_framework import views
 from .serializers import *
 from .models import *
@@ -30,7 +31,7 @@ class ReviewCreateView(views.APIView):
         if serialized_data.is_valid():
             data = serialized_data.validated_data
             review = Review.objects.create(**data)
-            return Response(data=review, status=status.HTTP_201_CREATED)
+            return Response(data=serialized_data.data, status=status.HTTP_201_CREATED)
         return Response(data=serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

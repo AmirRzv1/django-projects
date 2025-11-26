@@ -1,8 +1,13 @@
 from rest_framework import serializers
+from .models import Movie
+from django.contrib.auth.models import User
 
 class ReviewCreateSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    movie = serializers.CharField()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    # we need the actual movie object related to the id that
+    # we have from our user so we use this and we set queryset
+    # so it has control over all the objects and checks them all
+    movie = serializers.PrimaryKeyRelatedField(queryset=Movie.objects.all())
     rate = serializers.IntegerField()
     comment = serializers.CharField()
 

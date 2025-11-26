@@ -6,3 +6,6 @@ neshon nade be karbar va id ro ham bege dar kenaresh.
 2| be proje baraye khodam authentication ba JWT ro ezafe kardam ke
 karbar baraye sabte nam niaz nadare behesh vali baraye didan karbaraye dige chera
 niaz dare ke hatman login karde bashe
+
+3| alan proje mitone film ro kamel besaze va yeseri bakhsh marbot be
+rating ham dare ke kar mikone ama be test va baresi bishtar niaz dare ta kamel beshe
