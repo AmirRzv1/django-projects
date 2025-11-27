@@ -1,13 +1,13 @@
-from django.shortcuts import render
-from django.template.defaulttags import comment
 from rest_framework import views
 from .serializers import *
 from .models import *
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class MovieCreateView(views.APIView):
+
     def get(self, request):
         data = Movie.objects.all()
         serialized_data = MovieShowAllSerializer(instance=data, many=True)
@@ -25,12 +25,18 @@ class MovieCreateView(views.APIView):
 
 
 class ReviewCreateView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         serialized_data = ReviewCreateSerializer(data=request.data)
 
         if serialized_data.is_valid():
             data = serialized_data.validated_data
-            review = Review.objects.create(**data)
+            Review.objects.create(  user=request.user,
+                                    movie=data["movie"],
+                                    rate=data["rate"],
+                                    comment=data["comment"]
+                                    )
             return Response(data=serialized_data.data, status=status.HTTP_201_CREATED)
         return Response(data=serialized_data.errors, status=status.HTTP_400_BAD_REQUEST)
 

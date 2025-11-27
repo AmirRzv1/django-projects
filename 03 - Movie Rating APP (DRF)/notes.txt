@@ -9,3 +9,7 @@ niaz dare ke hatman login karde bashe
 
 3| alan proje mitone film ro kamel besaze va yeseri bakhsh marbot be
 rating ham dare ke kar mikone ama be test va baresi bishtar niaz dare ta kamel beshe
+
+4| kolan api ha kar mikone va mishe ke baraye ye film review sabt kard va okeye alan
+monde ke vaqti miaim o ye film ro neshon midim darkenaresh biaim o review haye onam
+neshon bedim ke kamel beshe.

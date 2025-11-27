@@ -10,16 +10,16 @@ from rest_framework.permissions import IsAuthenticated
 class AccountCreateView(APIView):
     # i defined a permission for this view so only authenticated users
     # can use this
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     # set the permission only for get method and not the entire
     # class so only get now have the permission and post is AllowAny
-    def get_permissions(self):
-        if self.request.method == "GET":
-            # we instantiate the permission class because in a method
-            # DRF can't do this for use we need to do it manually.
-            return [IsAuthenticated()]
-        return []
+    # def get_permissions(self):
+    #     if self.request.method == "GET":
+    #         # we instantiate the permission class because in a method
+    #         # DRF can't do this for use we need to do it manually.
+    #         return [IsAuthenticated()]
+    #     return []
 
 
     def get(self, request):
