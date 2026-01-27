@@ -7,7 +7,8 @@ class Task(models.Model):
     # and second for human readable.
     STATUS_CHOICES = [
         ("ongoing", "Ongoing"),
-        ("done", "Done")
+        ("done", "Done"),
+        ('deleted', 'Deleted'),
     ]
 
     title = models.CharField(max_length=50, blank=False, null=False)
