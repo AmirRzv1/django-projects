@@ -24,7 +24,8 @@ class UserRegisterView(View):
                 return redirect("home:home")
                 # return redirect(request, "accounts:user_login")
             except IntegrityError:
-                messages.error(request, "User already exists !")
+                form.add_error("username", "This username already exists.")
+                messages.error(request, "User already exists !", "danger")
 
         return render(request, "accounts/register.html", {"form": form})
 
