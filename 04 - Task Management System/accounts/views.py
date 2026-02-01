@@ -29,4 +29,7 @@ class UserRegisterView(View):
 
         return render(request, "accounts/register.html", {"form": form})
 
+class UserLoginView():
+    pass
+
 
