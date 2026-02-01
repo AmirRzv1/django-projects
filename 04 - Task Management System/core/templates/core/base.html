@@ -16,7 +16,7 @@
     <div class="container">
         <a class="navbar-brand fw-bold" href="{% url 'home:home'%}">Task Tracker</a>
         <div>
-            <a  class="btn btn-outline-primary me-2">Login</a>
+            <a  href="{% url 'accounts:user_login' %}" class="btn btn-outline-primary me-2">Login</a>
             <a href="{% url 'accounts:user_register' %}" class="btn btn-primary">Sign Up</a>
         </div>
     </div>

@@ -29,7 +29,14 @@ class UserRegisterView(View):
 
         return render(request, "accounts/register.html", {"form": form})
 
-class UserLoginView():
-    pass
+class UserLoginView(View):
+    form_class = UserRegisterForm
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, "accounts/login.html", {"form": form})
+
+    def post(self, request):
+        pass
 
 
