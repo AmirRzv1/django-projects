@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from .forms import *
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib import messages
+from django.contrib.auth import login, logout, authenticate
+from .forms import *
 
 # Create your views here.
 class UserRegisterView(View):
@@ -37,6 +38,22 @@ class UserLoginView(View):
         return render(request, "accounts/login.html", {"form": form})
 
     def post(self, request):
-        pass
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = authenticate(username=data["username"], password=data["password"])
+            if user:
+                login(request, user)
+                messages.success(request, "Logged in successfully!")
+                return redirect("home:home")
+            else:
+                messages.error(request, "Invalid Credential !!")
+        return render(request, "accounts/login.html", {"form": form})
 
+class UserLogoutView(View):
+
+    def get(self, request):
+        logout(request)
+        messages.success(request, "User logged out successfully !")
+        return redirect("home:home")
 
