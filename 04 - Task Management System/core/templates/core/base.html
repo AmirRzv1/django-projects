@@ -21,7 +21,7 @@
         <!-- Center: Dashboard (only if logged in) -->
         {% if user.is_authenticated %}
         <div class="mx-auto">
-            <a class="fw-bold text-decoration-none">
+            <a href="{% url 'tasks:task_dashboard' %}" class="fw-bold text-decoration-none">
                 Dashboard
             </a>
         </div>
