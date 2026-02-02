@@ -21,16 +21,27 @@ Dashboard | Task Tracker
 
         <!-- Tasks Section -->
         <div class="card shadow-sm">
-            <div class="card-header">
-                <h5>Your Tasks</h5>
-            </div>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Your Tasks</h5>
+                <!-- Create Task Button -->
+                  <a href="{% url 'tasks:task_create' %}" class="btn btn-primary btn-sm">Create Task</a>            </div>
+
             <ul class="list-group list-group-flush">
                 {% for task in user.tasks.all %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ task.title }}</strong><br>
-                        <small>{{ task.description }}</small>
+                    <div class="d-flex align-items-center">
+                        <!-- Task Action Buttons -->
+                        <div class="me-3">
+                            <button class="btn btn-success btn-sm me-1">Update</button>
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </div>
+                        <!-- Task Info -->
+                        <div>
+                            <strong>{{ task.title }}</strong><br>
+                            <small>{{ task.description }}</small>
+                        </div>
                     </div>
+                    <!-- Task Status Badge -->
                     <span class="badge bg-{{ task.status|lower }}">{{ task.status }}</span>
                 </li>
                 {% empty %}

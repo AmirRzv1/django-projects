@@ -5,4 +5,6 @@ app_name = "tasks"
 
 urlpatterns = [
     path("dashboard/", TaskDashboardView.as_view(), name="task_dashboard"),
+    path("create/", TaskCreateView.as_view(), name="task_create"),
+
 ]

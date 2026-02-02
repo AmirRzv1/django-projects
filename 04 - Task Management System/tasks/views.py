@@ -8,3 +8,7 @@ class TaskDashboardView(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, "tasks/dashboard.html")
+
+class TaskCreateView(View):
+    def get(self, request):
+        return render(request, "tasks/task_create.html")
