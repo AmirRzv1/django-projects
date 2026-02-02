@@ -27,11 +27,6 @@
                         {{ form.description }}
                     </div>
 
-                    <div class="mb-3">
-                        {{ form.status.label_tag }}
-                        {{ form.status }}
-                    </div>
-
                     <button type="submit" class="btn btn-primary w-100">
                         {% if task %}Update{% else %}Create{% endif %}
                     </button>

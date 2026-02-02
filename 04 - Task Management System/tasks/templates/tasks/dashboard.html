@@ -11,10 +11,10 @@ Dashboard | Task Tracker
         <!-- User Info Section -->
         <div class="card mb-4 shadow-sm">
             <div class="card-body">
-                <h4 class="card-title">Welcome, {{ user.username }}!</h4>
+                <h4 class="card-title text-center">Welcome, {{ user.username }}!</h4>
                 <p class="card-text">
-                    Email: {{ user.email }}<br>
-                    Total tasks: {{ user.tasks.count }}
+                    Email : {{ user.email }}<br>
+                    Total tasks : {{ user.tasks.count }}
                 </p>
             </div>
         </div>
@@ -28,21 +28,36 @@ Dashboard | Task Tracker
 
             <ul class="list-group list-group-flush">
                 {% for task in user.tasks.all %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <!-- Task Action Buttons -->
-                        <div class="me-3">
-                            <button class="btn btn-success btn-sm me-1">Update</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </div>
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+
                         <!-- Task Info -->
                         <div>
-                            <strong>{{ task.title }}</strong><br>
-                            <small>{{ task.description }}</small>
+                            <p class="mb-1">
+                                <strong>Title:</strong> {{ task.title }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Description:</strong>
+                                {{ task.description|default:"—" }}
+                            </p>
+                            <span class="badge bg-{{ task.status|lower }}">
+                                {{ task.status }}
+                            </span>
                         </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-column justify-content-end align-items-end">
+                            <div class="d-flex gap-2">
+                              <button class="btn btn-success btn-sm">
+                                  Update
+                              </button>
+                              <button class="btn btn-danger btn-sm">
+                                  Delete
+                              </button>
+                          </div>
+                        </div>
+
                     </div>
-                    <!-- Task Status Badge -->
-                    <span class="badge bg-{{ task.status|lower }}">{{ task.status }}</span>
                 </li>
                 {% empty %}
                 <li class="list-group-item text-center text-muted">
