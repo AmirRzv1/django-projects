@@ -28,6 +28,12 @@ class TaskCreateView(View):
             return redirect("tasks:task_dashboard")
         return render(request, "tasks/dashboard.html", {"form": form})
 
+class TaskUpdateView(View):
+    form_class = TaskUpdateForm
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, "tasks/task_update.html", {"form": form})
 
 
 

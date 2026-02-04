@@ -40,6 +40,12 @@ Dashboard | Task Tracker
                                 <strong>Description:</strong>
                                 {{ task.description|default:"—" }}
                             </p>
+                          <p class="mb-1">
+                                <strong>_____________</strong>
+                          </p>
+                            <p class="mb-1">
+                                <strong>Status:</strong> {{ task.status }}
+                            </p>
                             <span class="badge bg-{{ task.status|lower }}">
                                 {{ task.status }}
                             </span>
@@ -48,13 +54,16 @@ Dashboard | Task Tracker
                         <!-- Action Buttons -->
                         <div class="d-flex flex-column justify-content-end align-items-end">
                             <div class="d-flex gap-2">
-                              <button class="btn btn-success btn-sm">
-                                  Update
-                              </button>
-                              <button class="btn btn-danger btn-sm">
-                                  Delete
-                              </button>
-                          </div>
+                                <a href="{% url 'tasks:task_update'%}"
+                                   class="btn btn-success btn-sm">
+                                    Update
+                                </a>
+
+                                <a
+                                   class="btn btn-danger btn-sm">
+                                    Delete
+                                </a>
+                            </div>
                         </div>
 
                     </div>
