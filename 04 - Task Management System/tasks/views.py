@@ -47,6 +47,13 @@ class TaskUpdateView(View):
             return redirect("tasks:task_dashboard")
         return render(request, "tasks/task_update.html", {"form": form})
 
+class TaskDeleteView(View):
+    def get(self, request, task_id):
+        task = Task.objects.get(pk=task_id)
+        task.delete()
+        messages.success(request, "Task deleted successfully!")
+        return redirect("tasks:task_dashboard")
+
 
 
 
