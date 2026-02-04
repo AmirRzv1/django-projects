@@ -31,9 +31,22 @@ class TaskCreateView(View):
 class TaskUpdateView(View):
     form_class = TaskUpdateForm
 
-    def get(self, request):
-        form = self.form_class()
+    # We need to use ModelForm so we can use the instance to pre-fill
+    # the data for our forms in the templates.
+    def get(self, request, task_id):
+        task = Task.objects.get(pk=task_id)
+        form = self.form_class(instance=task)
         return render(request, "tasks/task_update.html", {"form": form})
+
+    def post(self, request, task_id):
+        task = Task.objects.get(pk=task_id)
+        form = self.form_class(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Data Updated Successfully!")
+            return redirect("tasks:task_dashboard")
+        return render(request, "tasks/task_update.html", {"form": form})
+
 
 
 
