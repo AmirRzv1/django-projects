@@ -5,16 +5,20 @@ Dashboard | Task Tracker
 {% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
+<div class="row">
+
+    <!-- MAIN CONTENT -->
+    <div class="col-md-9">
 
         <!-- User Info Section -->
         <div class="card mb-4 shadow-sm">
             <div class="card-body">
-                <h4 class="card-title text-center">Welcome, {{ user.username }}!</h4>
-                <p class="card-text">
-                    Email : {{ user.email }}<br>
-                    Total tasks : {{ user.tasks.count }}
+                <h4 class="card-title text-center">
+                    Welcome, {{ user.username }}!
+                </h4>
+                <p class="card-text text-left">
+                    Email: {{ user.email }} <br>
+                    Total tasks: {{ user.tasks.count }}
                 </p>
             </div>
         </div>
@@ -22,9 +26,25 @@ Dashboard | Task Tracker
         <!-- Tasks Section -->
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Your Tasks</h5>
-                <!-- Create Task Button -->
-                  <a href="{% url 'tasks:task_create' %}" class="btn btn-primary btn-sm">Create Task</a>            </div>
+
+                <!-- Dynamic Title -->
+                <h5 class="mb-0">
+                    {% if request.GET.status == 'ongoing' %}
+                        Ongoing Tasks
+                    {% elif request.GET.status == 'done' %}
+                        Completed Tasks
+                    {% elif request.GET.status == 'deleted' %}
+                        Deleted Tasks
+                    {% else %}
+                        All Tasks
+                    {% endif %}
+                </h5>
+
+                <a href="{% url 'tasks:task_create' %}"
+                   class="btn btn-primary btn-sm">
+                    Create Task
+                </a>
+            </div>
 
             <ul class="list-group list-group-flush">
                 {% for task in user.tasks.all %}
@@ -36,18 +56,23 @@ Dashboard | Task Tracker
                             <p class="mb-1">
                                 <strong>Title:</strong> {{ task.title }}
                             </p>
+
                             <p class="mb-1">
                                 <strong>Description:</strong>
                                 {{ task.description|default:"—" }}
                             </p>
-                          <p class="mb-1">
-                                <strong>_____________</strong>
-                          </p>
-                            <p class="mb-1">
-                                <strong>Status:</strong> {{ task.status }}
-                            </p>
-                            <span class="badge bg-{{ task.status|lower }}">
-                                {{ task.status }}
+
+                            <span class="badge
+                            {% if task.status|lower == 'ongoing' or task.status|lower == 'on going' %}
+                                bg-primary text-white
+                            {% elif task.status|lower == 'done' %}
+                                bg-success text-white
+                            {% elif task.status|lower == 'deleted' %}
+                                bg-danger text-white
+                            {% else %}
+                                bg-secondary text-white
+                            {% endif %}">
+                                Status: {{ task.status|title }}
                             </span>
                         </div>
 
@@ -60,10 +85,10 @@ Dashboard | Task Tracker
                                 </a>
 
                                 <a href="{% url 'tasks:task_delete' task.id %}"
-                                 class="btn btn-danger btn-sm"
-                                 onclick="return confirm('Are you sure you want to delete this task?');">
-                                 Delete
-                              </a>
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to delete this task?');">
+                                    Delete
+                                </a>
                             </div>
                         </div>
 
@@ -76,7 +101,44 @@ Dashboard | Task Tracker
                 {% endfor %}
             </ul>
         </div>
-
     </div>
+
+    <!-- SIDEBAR -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-header text-center">
+                <strong>Filter Tasks</strong>
+            </div>
+
+            <div class="list-group list-group-flush">
+
+                <a
+                   class="list-group-item list-group-item-action
+                   {% if not request.GET.status %}active{% endif %}">
+                    All Tasks
+                </a>
+
+                <a
+                   class="list-group-item list-group-item-action
+                   {% if request.GET.status == 'ongoing' %}active{% endif %}">
+                    Ongoing
+                </a>
+
+                <a
+                   class="list-group-item list-group-item-action
+                   {% if request.GET.status == 'done' %}active{% endif %}">
+                    Completed
+                </a>
+
+                <a
+                   class="list-group-item list-group-item-action
+                   {% if request.GET.status == 'deleted' %}active{% endif %}">
+                    Deleted
+                </a>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
