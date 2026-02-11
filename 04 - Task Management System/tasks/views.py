@@ -11,7 +11,8 @@ class TaskDashboardView(LoginRequiredMixin, View):
 
     def get(self, request):
         # query to get the tasks
-        task_get_query = Task.objects.filter(owner=request.user)
+        # + exclude -> miad va on mored ro ignore mikone
+        task_get_query = Task.objects.filter(owner=request.user).exclude(status="soft_delete")
         # validate the status to be correct
         task_status = request.GET.get("status")
         # no status so we send the related ones for the same user
