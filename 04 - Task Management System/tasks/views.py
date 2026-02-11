@@ -68,6 +68,8 @@ class TaskDeleteView(View):
         messages.success(request, "Task deleted successfully!")
         return redirect("tasks:task_dashboard")
 
+class RecycleBinView(View):
+    pass
 
 
 
