@@ -50,10 +50,8 @@ Dashboard | Task Tracker
                 <h5 class="mb-0">
                     {% if request.GET.status == 'ongoing' %}
                         Ongoing Tasks
-                    {% elif request.GET.status == 'done' %}
+                    {% elif request.GET.status == 'completed' %}
                         Completed Tasks
-                    {% elif request.GET.status == 'deleted' %}
-                        Deleted Tasks
                     {% else %}
                         All Tasks
                     {% endif %}
@@ -82,16 +80,12 @@ Dashboard | Task Tracker
                             </p>
 
                             <span class="badge
-                            {% if task.status|lower == 'ongoing' or task.status|lower == 'on going' %}
+                            {% if task.status|lower == 'ongoing' %}
                                 bg-primary text-white
                             {% elif task.status|lower == 'completed' %}
                                 bg-success text-white
-                            {% elif task.status|lower == 'deleted' %}
-                                bg-danger text-white
-                            {% else %}
-                                bg-secondary text-white
                             {% endif %}">
-                                Status: {{ task.status|title }}
+                                  Status: {{ task.status|title }}
                             </span>
                         </div>
 
