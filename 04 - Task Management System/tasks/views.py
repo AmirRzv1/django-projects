@@ -64,7 +64,7 @@ class TaskUpdateView(View):
             return redirect("tasks:task_dashboard")
         return render(request, "tasks/task_update.html", {"form": form})
 
-class TaskDeleteView(View):
+class TaskSoftDeleteView(View):
 
     def get(self, request, task_id):
         task = get_object_or_404(Task, owner=request.user, pk=task_id)
@@ -91,6 +91,18 @@ class TaskRestoreView(View):
             return redirect("tasks:recycle_bin")
 
         messages.error(request, "No Task with this id.")
+        return redirect("tasks:recycle_bin")
+
+class TaskPermanentlyView(View):
+    def post(self, request, post_id):
+        task = Task.objects.get(owner=request.user, pk=post_id)
+        if task:
+            task.delete()
+
+            messages.success(request, "Task deleted permanently.")
+            return redirect("tasks:recycle_bin")
+
+        messages.error(request, "No task with thi id.")
         return redirect("tasks:recycle_bin")
 
 
