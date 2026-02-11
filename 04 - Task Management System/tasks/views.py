@@ -95,14 +95,9 @@ class TaskRestoreView(View):
 
 class TaskPermanentlyView(View):
     def post(self, request, task_id):
-        task = Task.objects.get(owner=request.user, pk=task_id)
-        if task:
-            task.delete()
-
-            messages.success(request, "Task deleted permanently.")
-            return redirect("tasks:recycle_bin")
-
-        messages.error(request, "No task with thi id.")
+        task = get_object_or_404(Task, owner=request.user, task=task_id, status="soft_delete")
+        task.delete()
+        messages.success(request, "Task deleted permanently.")
         return redirect("tasks:recycle_bin")
 
 
