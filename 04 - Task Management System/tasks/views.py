@@ -69,7 +69,9 @@ class TaskDeleteView(View):
         return redirect("tasks:task_dashboard")
 
 class RecycleBinView(View):
-    pass
+
+    def get(self, request):
+        return render(request, "tasks/recycle_bin.html")
 
 
 

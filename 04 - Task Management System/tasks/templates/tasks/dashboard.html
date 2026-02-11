@@ -32,9 +32,10 @@ Dashboard | Task Tracker
 
                     <!-- Right: Recycle Bin Button -->
                     <div class="text-end">
-                        <button class="btn btn-outline-secondary btn-sm">
+                        <a href="{% url 'tasks:recycle_bin'%}"
+                                class="btn btn-outline-secondary btn-sm">
                             Recycle Bin
-                        </button>
+                        </a>
                     </div>
 
                 </div>
