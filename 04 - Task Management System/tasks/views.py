@@ -10,7 +10,21 @@ class TaskDashboardView(LoginRequiredMixin, View):
     login_url = "accounts:user_login"  # redirect here if not logged in
 
     def get(self, request):
-        return render(request, "tasks/dashboard.html")
+        # query to get the tasks
+        task_get_query = Task.objects.filter(owner=request.user)
+        # validate the status to be correct
+        task_status = request.GET.get("status")
+        # no status so we send the related ones for the same user
+        if not task_status:
+            return render(request, "tasks/dashboard.html", {"tasks": task_get_query})
+        # if it was not in the status we send an error
+        elif task_status not in [state[0] for state in Task.STATUS_CHOICES]:
+            messages.error(request, "Wrong status is given !")
+            return redirect("tasks:dashboard")
+
+        # we send related ones with the related status
+        tasks = task_get_query.filter(status=task_status)
+        return render(request, "tasks/dashboard.html", {"tasks": tasks})
 
 class TaskCreateView(View):
     form_class = TasksCreateForm

@@ -47,7 +47,7 @@ Dashboard | Task Tracker
             </div>
 
             <ul class="list-group list-group-flush">
-                {% for task in user.tasks.all %}
+                {% for task in tasks %}
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between">
 
@@ -65,7 +65,7 @@ Dashboard | Task Tracker
                             <span class="badge
                             {% if task.status|lower == 'ongoing' or task.status|lower == 'on going' %}
                                 bg-primary text-white
-                            {% elif task.status|lower == 'done' %}
+                            {% elif task.status|lower == 'completed' %}
                                 bg-success text-white
                             {% elif task.status|lower == 'deleted' %}
                                 bg-danger text-white
@@ -112,25 +112,25 @@ Dashboard | Task Tracker
 
             <div class="list-group list-group-flush">
 
-                <a
+                <a href="{% url 'tasks:task_dashboard' %}"
                    class="list-group-item list-group-item-action
                    {% if not request.GET.status %}active{% endif %}">
                     All Tasks
                 </a>
 
-                <a
+                <a href="{% url 'tasks:task_dashboard' %}?status=ongoing"
                    class="list-group-item list-group-item-action
                    {% if request.GET.status == 'ongoing' %}active{% endif %}">
                     Ongoing
                 </a>
 
-                <a
+                <a href="{% url 'tasks:task_dashboard' %}?status=completed"
                    class="list-group-item list-group-item-action
-                   {% if request.GET.status == 'done' %}active{% endif %}">
+                   {% if request.GET.status == 'completed' %}active{% endif %}">
                     Completed
                 </a>
 
-                <a
+                <a href="{% url 'tasks:task_dashboard' %}?status=deleted"
                    class="list-group-item list-group-item-action
                    {% if request.GET.status == 'deleted' %}active{% endif %}">
                     Deleted
