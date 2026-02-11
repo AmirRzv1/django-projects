@@ -17,6 +17,7 @@ class TaskDashboardView(LoginRequiredMixin, View):
         task_status = request.GET.get("status")
         # no status so we send the related ones for the same user
         if not task_status:
+            print(task_get_query.count(), task_get_query)
             return render(request, "tasks/dashboard.html", {"tasks": task_get_query})
         # if it was not in the status we send an error
         elif task_status not in [state[0] for state in Task.STATUS_CHOICES]:
@@ -25,6 +26,7 @@ class TaskDashboardView(LoginRequiredMixin, View):
 
         # we send related ones with the related status
         tasks = task_get_query.filter(status=task_status)
+
         return render(request, "tasks/dashboard.html", {"tasks": tasks})
 
 class TaskCreateView(View):
@@ -77,6 +79,19 @@ class RecycleBinView(View):
     def get(self, request):
         soft_deleted_tasks = Task.objects.filter(owner=request.user, status="soft_delete")
         return render(request, "tasks/recycle_bin.html", {"tasks": soft_deleted_tasks})
+
+class TaskRestoreView(View):
+    def post(self, request, task_id):
+        task = Task.objects.get(owner=request.user, pk=task_id)
+        if task:
+            task.status = "ongoing"
+            task.save()
+
+            messages.success(request, "Task restored successfully.")
+            return redirect("tasks:recycle_bin")
+
+        messages.error(request, "No Task with this id.")
+        return redirect("tasks:recycle_bin")
 
 
 

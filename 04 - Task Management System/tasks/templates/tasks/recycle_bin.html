@@ -75,10 +75,12 @@ Recycle Bin | Task Tracker
                         <div class="d-flex flex-column justify-content-end align-items-end">
                             <div class="d-flex gap-2">
 
-                                <!-- Restore Button -->
-                                <button class="btn btn-warning btn-sm">
-                                    Restore
-                                </button>
+                                <form method="post" action="{% url 'tasks:task_restore' task.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        Restore
+                                    </button>
+                                </form>
 
                                 <!-- Permanent Delete Button -->
                                 <button class="btn btn-dark btn-sm"
