@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import *
@@ -62,16 +62,20 @@ class TaskUpdateView(View):
         return render(request, "tasks/task_update.html", {"form": form})
 
 class TaskDeleteView(View):
+
     def get(self, request, task_id):
-        task = Task.objects.get(pk=task_id)
-        task.delete()
-        messages.success(request, "Task deleted successfully!")
+        task = get_object_or_404(Task, owner=request.user, pk=task_id)
+        task.status = "soft_delete"
+        task.save()
+
+        messages.success(request, "Task soft deleted successfully!")
         return redirect("tasks:task_dashboard")
 
-class RecycleBinView(View):
 
+class RecycleBinView(View):
     def get(self, request):
-        return render(request, "tasks/recycle_bin.html")
+        soft_deleted_tasks = Task.objects.filter(owner=request.user, status="soft_delete")
+        return render(request, "tasks/recycle_bin.html", {"tasks": soft_deleted_tasks})
 
 
 

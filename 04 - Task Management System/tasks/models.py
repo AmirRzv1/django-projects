@@ -8,12 +8,12 @@ class Task(models.Model):
     STATUS_CHOICES = [
         ("ongoing", "Ongoing"),
         ("completed", "Completed"),
-        ('deleted', 'Deleted'),
+        ('soft_delete', 'Soft Delete'),
     ]
 
     title = models.CharField(max_length=50, blank=False, null=False)
     description = models.TextField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=10, default="ongoing", choices=STATUS_CHOICES)
+    status = models.CharField(max_length=15, default="ongoing", choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
