@@ -1,2 +1,8 @@
-v1.0.0 - Initial release of the Task Management System
-Simple with main features.
+v1.1.0 - Improvements:
+
+Dashboard statistics (total tasks, ongoing, completed, deleted).
+Task filtering by status (All / Ongoing / Done / Deleted).
+Soft delete mechanism (Recycle Bin instead of permanent deletion).
+Restore deleted tasks from Recycle Bin.
+Permanent delete option for deleted tasks.
+Improved success and error feedback messages.
