@@ -8,6 +8,7 @@ urlpatterns = [
     path("create/", TaskCreateView.as_view(), name="task_create"),
     path("update/<int:task_id>/", TaskUpdateView.as_view(), name="task_update"),
     path("soft_delete/<int:task_id>", TaskSoftDeleteView.as_view(), name="task_soft_delete"),
+    path("permanently_delete/<int:task_id>", TaskPermanentlyView.as_view(), name="task_permanently_delete"),
     path("recycle_bin/", RecycleBinView.as_view(), name="recycle_bin"),
     path("restore/<int:task_id>/", TaskRestoreView.as_view(), name="task_restore"),
 ]

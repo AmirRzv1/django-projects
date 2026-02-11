@@ -94,8 +94,8 @@ class TaskRestoreView(View):
         return redirect("tasks:recycle_bin")
 
 class TaskPermanentlyView(View):
-    def post(self, request, post_id):
-        task = Task.objects.get(owner=request.user, pk=post_id)
+    def post(self, request, task_id):
+        task = Task.objects.get(owner=request.user, pk=task_id)
         if task:
             task.delete()
 

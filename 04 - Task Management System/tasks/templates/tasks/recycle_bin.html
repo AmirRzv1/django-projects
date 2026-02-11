@@ -83,10 +83,16 @@ Recycle Bin | Task Tracker
                                 </form>
 
                                 <!-- Permanent Delete Button -->
-                                <button class="btn btn-dark btn-sm"
+                                <form method="post" action="{% url 'tasks:task_permanently_delete' task.id %}">
+
+                                  {% csrf_token %}
+                                  <button class="btn btn-dark btn-sm"
                                         onclick="return confirm('This will permanently delete the task. Continue?');">
                                     Delete Permanently
                                 </button>
+
+                                </form>
+
 
                             </div>
                         </div>
