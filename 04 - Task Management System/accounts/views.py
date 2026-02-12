@@ -37,29 +37,36 @@ class UserLoginView(View):
         form = self.form_class()
         return render(request, "accounts/login.html", {"form": form})
 
+    def validate_username_or_email(self, data):
+        if data["email"]:
+            return {"email": data["email"]}
+        else:
+            return {"username": data["username"]}
+
     def post(self, request):
         form = self.form_class(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            user_request_info = [data["username"], data["email"]]
-            if "@" in user_request_info:
-                user = authenticate(email=user_request_info[1], password=data["password"])
-                if user:
-                    login(request, user)
-                    messages.success(request, "Logged in successfully!")
-                    return redirect("home:home")
-                else:
-                    messages.error(request, "Invalid Credential !!")
-            else:
-                user = authenticate(username=user_request_info[0], password=data["password"])
-                if user:
-                    login(request, user)
-                    messages.success(request, "Logged in successfully!")
-                    return redirect("home:home")
-                else:
-                    messages.error(request, "Invalid Credential !!")
 
-        return render(request, "accounts/login.html", {"form": form})
+        #     user_request_info = [data["username"], data["email"]]
+        #     if "@" in user_request_info:
+        #         user = authenticate(email=user_request_info[1], password=data["password"])
+        #         if user:
+        #             login(request, user)
+        #             messages.success(request, "Logged in successfully!")
+        #             return redirect("home:home")
+        #         else:
+        #             messages.error(request, "Invalid Credential !!")
+        #     else:
+        #         user = authenticate(username=user_request_info[0], password=data["password"])
+        #         if user:
+        #             login(request, user)
+        #             messages.success(request, "Logged in successfully!")
+        #             return redirect("home:home")
+        #         else:
+        #             messages.error(request, "Invalid Credential !!")
+        #
+        # return render(request, "accounts/login.html", {"form": form})
 
 class UserLogoutView(View):
 
