@@ -31,22 +31,50 @@ class UserRegisterView(View):
         return render(request, "accounts/register.html", {"form": form})
 
 class UserLoginView(View):
-    form_class = UserRegisterForm
+    form_class = UserLoginForm
 
     def get(self, request):
         form = self.form_class()
         return render(request, "accounts/login.html", {"form": form})
 
     def validate_username_or_email(self, data):
-        if data["email"]:
-            return {"email": data["email"]}
+        if data.get("email"):
+            return {"email": data["email"].lower()}
         else:
-            return {"username": data["username"]}
+            return {"username": data["username"].lower()}
 
     def post(self, request):
         form = self.form_class(request.POST)
+
         if form.is_valid():
             data = form.cleaned_data
+            print(data["username"])
+            # print(data["email"])
+            # whether it is email or username
+            result = self.validate_username_or_email(data)
+
+            if result.get("username", None):
+                user = authenticate(username=data["username"], password=data["password"])
+                if user:
+                    login(request, user)
+                    messages.success(request, "Logged in successfully!")
+                    return redirect("home:home")
+                else:
+                    messages.error(request, "Invalid Credential !!")
+                    return redirect("home:home")
+
+
+            else:
+                real_user = User.objects.get(email=data["username"])
+                user = authenticate(username=real_user.username, password=data["password"])
+                if user:
+                    login(request, user)
+                    messages.success(request, "Logged in successfully!")
+                    return redirect("home:home")
+                else:
+                    messages.error(request, "Invalid Credential !!")
+                    return redirect("home:home")
+
 
         #     user_request_info = [data["username"], data["email"]]
         #     if "@" in user_request_info:

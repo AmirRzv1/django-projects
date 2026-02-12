@@ -10,19 +10,22 @@ Login | Task Tracker
 
         <h3 class="mb-4 text-center">Login</h3>
 
-        <form method="post">
+        <form method="post" action="{% url 'accounts:user_login' %}">
             {% csrf_token %}
 
+            <!-- Username / Email Field -->
             <div class="mb-3">
-                {{ form.username.label_tag }}
+                <label for="{{ form.username.id_for_label }}">Username / Email:</label>
                 {{ form.username }}
             </div>
 
+            <!-- Password Field -->
             <div class="mb-3">
-                {{ form.password.label_tag }}
+                <label for="{{ form.password.id_for_label }}">Password:</label>
                 {{ form.password }}
             </div>
 
+            <!-- Submit Button -->
             <button type="submit" class="btn btn-primary w-100">
                 Login
             </button>
