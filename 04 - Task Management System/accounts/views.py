@@ -20,9 +20,9 @@ class UserRegisterView(View):
         if form.is_valid():
             data = form.cleaned_data
             try:
-                User.objects.create_user(username=data["username"], password=data["password"])
+                User.objects.create_user(username=data["username"], email=data["email"], password=data["password"])
                 messages.success(request, "User created successfully.")
-                return redirect("home:home")
+                return redirect("home:user_login")
                 # return redirect(request, "accounts:user_login")
             except IntegrityError:
                 form.add_error("username", "This username already exists.")
@@ -41,13 +41,24 @@ class UserLoginView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            user = authenticate(username=data["username"], password=data["password"])
-            if user:
-                login(request, user)
-                messages.success(request, "Logged in successfully!")
-                return redirect("home:home")
+            user_request_info = [data["username"], data["email"]]
+            if "@" in user_request_info:
+                user = authenticate(email=user_request_info[1], password=data["password"])
+                if user:
+                    login(request, user)
+                    messages.success(request, "Logged in successfully!")
+                    return redirect("home:home")
+                else:
+                    messages.error(request, "Invalid Credential !!")
             else:
-                messages.error(request, "Invalid Credential !!")
+                user = authenticate(username=user_request_info[0], password=data["password"])
+                if user:
+                    login(request, user)
+                    messages.success(request, "Logged in successfully!")
+                    return redirect("home:home")
+                else:
+                    messages.error(request, "Invalid Credential !!")
+
         return render(request, "accounts/login.html", {"form": form})
 
 class UserLogoutView(View):
