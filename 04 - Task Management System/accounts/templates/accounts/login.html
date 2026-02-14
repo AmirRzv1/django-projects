@@ -29,6 +29,14 @@ Login | Task Tracker
             <button type="submit" class="btn btn-primary w-100">
                 Login
             </button>
+
+            <!-- Forgot Password Link -->
+            <div class="text-center mt-3">
+                <a href="{% url 'accounts:password_reset' %}">
+                    Forgot your password?
+                </a>
+            </div>
+
         </form>
 
     </div>
