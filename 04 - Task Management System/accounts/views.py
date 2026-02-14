@@ -37,20 +37,21 @@ class UserLoginView(View):
         form = self.form_class()
         return render(request, "accounts/login.html", {"form": form})
 
+    # check that if the user is sending the username or email
+    # based on that we return the related information
     def validate_username_or_email(self, data):
-        if data.get("email"):
-            return {"email": data["email"].lower()}
+        login_info = data.get("username")
+        if login_info and "@" in login_info:
+            return {"email": login_info.lower()}
         else:
-            return {"username": data["username"].lower()}
+            return {"username": login_info.lower()}
+
 
     def post(self, request):
         form = self.form_class(request.POST)
 
         if form.is_valid():
             data = form.cleaned_data
-            print(data["username"])
-            # print(data["email"])
-            # whether it is email or username
             result = self.validate_username_or_email(data)
 
             if result.get("username", None):
@@ -75,29 +76,7 @@ class UserLoginView(View):
                     messages.error(request, "Invalid Credential !!")
                     return redirect("home:home")
 
-
-        #     user_request_info = [data["username"], data["email"]]
-        #     if "@" in user_request_info:
-        #         user = authenticate(email=user_request_info[1], password=data["password"])
-        #         if user:
-        #             login(request, user)
-        #             messages.success(request, "Logged in successfully!")
-        #             return redirect("home:home")
-        #         else:
-        #             messages.error(request, "Invalid Credential !!")
-        #     else:
-        #         user = authenticate(username=user_request_info[0], password=data["password"])
-        #         if user:
-        #             login(request, user)
-        #             messages.success(request, "Logged in successfully!")
-        #             return redirect("home:home")
-        #         else:
-        #             messages.error(request, "Invalid Credential !!")
-        #
-        # return render(request, "accounts/login.html", {"form": form})
-
 class UserLogoutView(View):
-
     def get(self, request):
         logout(request)
         messages.success(request, "User logged out successfully !")
