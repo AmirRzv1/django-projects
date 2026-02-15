@@ -87,6 +87,7 @@ class UserLogoutView(View):
 class CostumePasswordResetView(auth_views.PasswordResetView):
     template_name = "accounts/password_reset.html"
     email_template_name = "accounts/password_reset_email.html"
+    subject_template_name = 'accounts/password_reset_subject.txt'  # email subject template
     success_url = reverse_lazy("accounts:password_reset_done")
 
 class CostumePasswordResetDoneView(auth_views.PasswordResetDoneView):
