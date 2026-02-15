@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from .forms import *
+from django.contrib.auth import views as auth_views
 
 # Create your views here.
 class UserRegisterView(View):
@@ -81,4 +82,16 @@ class UserLogoutView(View):
         logout(request)
         messages.success(request, "User logged out successfully !")
         return redirect("home:home")
+
+class CostumePasswordResetView(auth_views.PasswordResetView):
+    pass
+
+class CostumePasswordResetDoneView(auth_views.PasswordResetDoneView):
+    pass
+
+class CostumePasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    pass
+
+class CostumePasswordResetCompleteView(auth_views.PasswordResetCompleteView):
+    pass
 
