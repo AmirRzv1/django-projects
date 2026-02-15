@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from .forms import *
 from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
 
 # Create your views here.
 class UserRegisterView(View):
@@ -84,14 +85,19 @@ class UserLogoutView(View):
         return redirect("home:home")
 
 class CostumePasswordResetView(auth_views.PasswordResetView):
-    pass
+    template_name = "accounts/password_reset.html"
+    email_template_name = "accounts/password_reset_email.html"
+    success_url = reverse_lazy("accounts:password_reset_done")
 
 class CostumePasswordResetDoneView(auth_views.PasswordResetDoneView):
-    pass
+    template_name = "accounts/password_reset_done.html"
 
 class CostumePasswordResetConfirmView(auth_views.PasswordResetConfirmView):
-    pass
+    template_name = "accounts/password_reset_confirm.html"
+    success_url = reverse_lazy("accounts:password_reset_complete")
+
 
 class CostumePasswordResetCompleteView(auth_views.PasswordResetCompleteView):
-    pass
+    template_name = "accounts/password_reset_complete.html"
+
 
