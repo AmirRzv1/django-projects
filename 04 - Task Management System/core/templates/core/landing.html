@@ -1,14 +1,43 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
+{% load static %}
 
-{% block title %}
-Home | Task Tracker
-{% endblock %}
+{% block title %}Task Tracker{% endblock %}
 
 {% block content %}
-<div class="text-center">
-    <h1 class="mb-3">Track Your Tasks Simply</h1>
-    <p class="text-muted">
-        Organize your work, track progress, and never forget a task again.
-    </p>
+
+<!-- HERO SECTION -->
+<div style="max-width: 1200px; margin: 50px auto; text-align: center; font-family: sans-serif;">
+
+    <!-- Hero image on top (smaller height) -->
+    <div>
+        <img src="{% static 'core/images/hero_image.jpg' %}"
+             alt="Task Tracker Dashboard"
+             style="width: 100%; max-height: 500px; object-fit: contain; border-radius: 12px;">
+    </div>
+
+    <!-- Texts and button under the image -->
+    <div style="margin-top: 20px;">
+        <h1 style="font-size: 32px; color: #222; margin-bottom: 12px;">
+            Organize Your Tasks, Boost Productivity
+        </h1>
+        <p style="font-size: 16px; color: #555; margin-bottom: 20px;">
+            Track, plan, and complete tasks effortlessly.
+        </p>
+        {% if user.is_authenticated %}
+          <a href="{% url 'tasks:task_dashboard' %}"
+             style="padding: 10px 22px; background-color: #4CAF50; color: white;
+                    text-decoration: none; border-radius: 6px; font-weight: 500;">
+              Dashboard
+          </a>
+        {% else %}
+          <a href="{% url 'accounts:user_login' %}"
+             style="padding: 10px 22px; background-color: #4CAF50; color: white;
+                    text-decoration: none; border-radius: 6px; font-weight: 500;">
+              Get Started
+          </a>
+        {% endif %}
+    </div>
+
 </div>
+
 {% endblock %}
