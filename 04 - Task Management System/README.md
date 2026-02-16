@@ -1,4 +1,4 @@
-# 📨 Task Management System (Version 1.1.0)
+# 📨 Task Management System (Version 1.2.0)
 
 A simple yet well-structured **Task Management web application** built with **Django**.  
 The project focuses on implementing **full CRUD operations** (Create, Read, Update, Delete) for tasks, along with **user authentication** features such as **register, login, and logout**.

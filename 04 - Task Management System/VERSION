@@ -1,4 +1,4 @@
-v1.1.0 - Improvements:
+v 1.1.0 - Improvements:
 
 Dashboard statistics (total tasks, ongoing, completed, deleted).
 Task filtering by status (All / Ongoing / Done / Deleted).
@@ -6,3 +6,11 @@ Soft delete mechanism (Recycle Bin instead of permanent deletion).
 Restore deleted tasks from Recycle Bin.
 Permanent delete option for deleted tasks.
 Improved success and error feedback messages.
+
+V 1.2.0 - Improvements:
+Focus: Enhancing user authentication and security flows.
+
+- Forgot password functionality using Django’s built-in auth system.
+- Email-based password reset flow.
+- Improved form validation and error handling.
+- Access control hardening (ownership checks on all task actions).
