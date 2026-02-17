@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+Login | Task Tracker
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+
+        <h3 class="mb-4 text-center">Login</h3>
+
+        <form method="post" action="{% url 'accounts:user_login' %}">
+            {% csrf_token %}
+
+            <!-- Username / Email Field -->
+            <div class="mb-3">
+                <label for="{{ form.username.id_for_label }}">Username / Email:</label>
+                {{ form.username }}
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-3">
+                <label for="{{ form.password.id_for_label }}">Password:</label>
+                {{ form.password }}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100">
+                Login
+            </button>
+
+            <!-- Forgot Password Link -->
+            <div class="text-center mt-3">
+                <a href="{% url 'accounts:password_reset' %}">
+                    Forgot your password?
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+{% endblock %}

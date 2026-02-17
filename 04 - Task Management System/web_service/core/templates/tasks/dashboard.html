@@ -1,0 +1,158 @@
+{% extends 'core/base.html' %}
+
+{% block title %}
+Dashboard | Task Tracker
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+    <!-- MAIN CONTENT -->
+    <div class="col-md-9">
+
+        <!-- User Info Section -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+
+                <!-- Welcome (Top Center) -->
+                <h4 class="card-title text-center mb-4">
+                    Welcome, {{ user.username }}!
+                </h4>
+
+                <!-- Bottom Row -->
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <!-- Left: User Info -->
+                    <div class="text-start">
+                        <p class="mb-0">
+                            Email: {{ user.email }} <br>
+                            Total tasks: {{ tasks.count }}
+                        </p>
+                    </div>
+
+                    <!-- Right: Recycle Bin Button -->
+                    <div class="text-end">
+                        <a href="{% url 'tasks:recycle_bin'%}"
+                                class="btn btn-outline-secondary btn-sm">
+                            Recycle Bin
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tasks Section -->
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+
+                <!-- Dynamic Title -->
+                <h5 class="mb-0">
+                    {% if request.GET.status == 'ongoing' %}
+                        Ongoing Tasks
+                    {% elif request.GET.status == 'completed' %}
+                        Completed Tasks
+                    {% else %}
+                        All Tasks
+                    {% endif %}
+                </h5>
+
+                <a href="{% url 'tasks:task_create' %}"
+                   class="btn btn-primary btn-sm">
+                    Create Task
+                </a>
+            </div>
+
+            <ul class="list-group list-group-flush">
+                {% for task in tasks %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+
+                        <!-- Task Info -->
+                        <div>
+                            <p class="mb-1">
+                                <strong>Title:</strong> {{ task.title }}
+                            </p>
+
+                            <p class="mb-1">
+                                <strong>Description:</strong>
+                                {{ task.description|default:"—" }}
+                            </p>
+
+                            <span class="badge
+                            {% if task.status|lower == 'ongoing' %}
+                                bg-primary text-white
+                            {% elif task.status|lower == 'completed' %}
+                                bg-success text-white
+                            {% endif %}">
+                                  Status: {{ task.status|title }}
+                            </span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-column justify-content-end align-items-end">
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'tasks:task_update' task.id %}"
+                                   class="btn btn-success btn-sm">
+                                    Update
+                                </a>
+
+                                <a href="{% url 'tasks:task_soft_delete' task.id %}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to delete this task?');">
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-center text-muted">
+                    You have no tasks yet.
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-header text-center">
+                <strong>Filter Tasks</strong>
+            </div>
+
+            <div class="list-group list-group-flush">
+
+                <a href="{% url 'tasks:task_dashboard' %}"
+                   class="list-group-item list-group-item-action
+                   {% if not request.GET.status %}active{% endif %}">
+                    All Tasks
+                </a>
+
+                <a href="{% url 'tasks:task_dashboard' %}?status=ongoing"
+                   class="list-group-item list-group-item-action
+                   {% if request.GET.status == 'ongoing' %}active{% endif %}">
+                    Ongoing
+                </a>
+
+                <a href="{% url 'tasks:task_dashboard' %}?status=completed"
+                   class="list-group-item list-group-item-action
+                   {% if request.GET.status == 'completed' %}active{% endif %}">
+                    Completed
+                </a>
+
+<!--                <a href="{% url 'tasks:task_dashboard' %}?status=deleted"-->
+<!--                   class="list-group-item list-group-item-action-->
+<!--                   {% if request.GET.status == 'deleted' %}active{% endif %}">-->
+<!--                    Deleted-->
+<!--                </a>-->
+
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
