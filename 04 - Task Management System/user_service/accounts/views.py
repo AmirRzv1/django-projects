@@ -1,5 +1,7 @@
-from django.shortcuts import render
+import json
+from django.http import JsonResponse
 from django.views import View
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 class UserLoginView(View):
@@ -14,30 +16,22 @@ class UserLoginView(View):
 
 
     def post(self, request):
-        form = self.form_class(request.POST)
+        data = json.loads(request.body)
+        username = data.get("username")
+        password = data.get("password")
 
-        if form.is_valid():
-            data = form.cleaned_data
-            result = self.validate_username_or_email(data)
+        result = self.validate_username_or_email(username)
 
-            if result.get("username", None):
-                user = authenticate(username=data["username"], password=data["password"])
-                if user:
-                    login(request, user)
-                    messages.success(request, "Logged in successfully!")
-                    return redirect("home:home")
-                else:
-                    messages.error(request, "Invalid Credential !!")
-                    return redirect("home:home")
+        if result.get("username", None):
+            user = authenticate(username=result.get("username"), password=password)
+            if user:
+                login(request, user)
+                return JsonResponse({"success": True, "user_id": user.id, "username": user.username})
 
 
-            else:
-                real_user = User.objects.get(email=data["username"])
-                user = authenticate(username=real_user.username, password=data["password"])
-                if user:
-                    login(request, user)
-                    messages.success(request, "Logged in successfully!")
-                    return redirect("home:home")
-                else:
-                    messages.error(request, "Invalid Credential !!")
-                    return redirect("home:home")
+        else:
+            user = authenticate(username=result.get("username"), password=password)
+            if user:
+                login(request, user)
+                return JsonResponse({"success": True, "user_id": user.id, "username": user.username})
+

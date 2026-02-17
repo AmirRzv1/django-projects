@@ -1,4 +1,6 @@
-from django.shortcuts import render
+from asyncio import timeout
+
+from django.shortcuts import render, redirect
 from django.views import View
 from .forms import *
 import requests
@@ -20,7 +22,12 @@ class UserLoginView(View):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        response = request.post("http://127.0.0.1:8001/accounts/login/")
+        response = request.post("http://127.0.0.1:8001/accounts/login/",
+                                json={"username": username, "password": password},
+                                timeout=5)
+        response_result = response.json()
+        if response_result.get("success"):
+            return redirect("home")
 
 
 
