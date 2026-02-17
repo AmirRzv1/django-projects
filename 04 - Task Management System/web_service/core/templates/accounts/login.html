@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}
 Login | Task Tracker
@@ -10,7 +10,7 @@ Login | Task Tracker
 
         <h3 class="mb-4 text-center">Login</h3>
 
-        <form method="post" action="{% url 'accounts:user_login' %}">
+        <form method="post" action="">
             {% csrf_token %}
 
             <!-- Username / Email Field -->
@@ -32,7 +32,7 @@ Login | Task Tracker
 
             <!-- Forgot Password Link -->
             <div class="text-center mt-3">
-                <a href="{% url 'accounts:password_reset' %}">
+                <a >
                     Forgot your password?
                 </a>
             </div>
