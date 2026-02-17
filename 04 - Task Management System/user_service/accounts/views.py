@@ -1,13 +1,8 @@
 from django.shortcuts import render
+from django.views import View
 
 # Create your views here.
 class UserLoginView(View):
-    form_class = UserLoginForm
-
-    def get(self, request):
-        form = self.form_class()
-        return render(request, "accounts/login.html", {"form": form})
-
     # check that if the user is sending the username or email
     # based on that we return the related information
     def validate_username_or_email(self, data):
