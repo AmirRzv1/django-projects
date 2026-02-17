@@ -6,3 +6,11 @@ from django.views import View
 class HomeView(View):
     def get(self, request):
         return render(request, "landing.html")
+
+class UserLoginView(View):
+    def get(self, request):
+        pass
+
+    def post(self, request):
+        pass
+

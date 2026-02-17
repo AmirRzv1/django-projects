@@ -1,0 +1,14 @@
+# task_service
+deactivate
+source task_venv/bin/activate
+python manage.py runserver
+
+# user_service
+deactivate
+source user_venv/bin/activate
+python manage.py runserver 8001
+
+# web_service
+deactivate
+source web_venv/bin/activate
+python manage.py runserver 8002
