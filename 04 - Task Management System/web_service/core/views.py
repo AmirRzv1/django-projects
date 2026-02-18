@@ -60,6 +60,22 @@ class UserLoginView(View):
                 messages.error(request, response_result.get("error", "Invalid credentials"))
                 return render(request, "accounts/login.html", {"form": form})
 
+class UserLogoutView(View):
+    def post(self, request):
+        user_id = request.session.get("user_id")
+        if not user_id:
+            messages.error(request, "You are not logged in.")
+            return redirect("core:home")
+
+        response = requests.post("http://127.0.0.1:8000/accounts/logout/",
+                                 json={"user_id": user_id},
+                                 timeout=5
+                                 )
+        if response:
+            request.session.pop("user_id", None)
+            request.session.pop("username", None)
+            request.session.pop("user_is_authenticated", None)
+            messages.success(request, "User successfully logged out.")
 
 
 
