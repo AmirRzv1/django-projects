@@ -4,6 +4,7 @@ from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth.models import User
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -40,3 +41,22 @@ class UserLoginAPIView(View):
                 return JsonResponse({"success": True, "user_id": user.id, "username": user.username})
 
         return JsonResponse({"success": False, "error": "Invalid username or password"}, status=401)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class UserLogoutAPIView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        print("data =", data)
+        user_id = data.get("user_id")
+        if not user_id:
+            return JsonResponse({"success": False, "error": "No user exists."}, status=400)
+
+        real_user = User.objects.get(id=user_id)
+        print("real_user = ", real_user)
+        if real_user:
+            logout(request)
+            return JsonResponse({"success": True})
+
+
+
+

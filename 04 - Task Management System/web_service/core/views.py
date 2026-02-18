@@ -63,19 +63,24 @@ class UserLoginView(View):
 class UserLogoutView(View):
     def post(self, request):
         user_id = request.session.get("user_id")
+        print("user_id = ", user_id)
         if not user_id:
             messages.error(request, "You are not logged in.")
             return redirect("core:home")
 
-        response = requests.post("http://127.0.0.1:8000/accounts/logout/",
+        response = requests.post("http://127.0.0.1:8001/accounts/logout/",
                                  json={"user_id": user_id},
                                  timeout=5
                                  )
-        if response:
+        print("respnse = ", response)
+        final_response = response.json()
+        print("final_result = ", final_response)
+        if final_response.get("success"):
             request.session.pop("user_id", None)
             request.session.pop("username", None)
             request.session.pop("user_is_authenticated", None)
             messages.success(request, "User successfully logged out.")
+            return redirect("core:home")
 
 
 
