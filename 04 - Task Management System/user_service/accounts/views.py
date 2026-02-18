@@ -18,9 +18,12 @@ class UserLoginAPIView(View):
 
 
     def post(self, request):
-        data = json.loads(request.body)
-        username = data["username"]
-        password = data["password"]
+        try:
+            data = json.loads(request.body)
+            username = data["username"]
+            password = data["password"]
+        except (json.JSONDecodeError, KeyError):
+            return JsonResponse({"success": False, "error": "Invalid request body"}, status=400)
 
         result = self.validate_username_or_email(username)
 
@@ -30,10 +33,10 @@ class UserLoginAPIView(View):
                 login(request, user)
                 return JsonResponse({"success": True, "user_id": user.id, "username": user.username})
 
-
         else:
             user = authenticate(username=result["username"], password=password)
             if user:
                 login(request, user)
                 return JsonResponse({"success": True, "user_id": user.id, "username": user.username})
 
+        return JsonResponse({"success": False, "error": "Invalid username or password"}, status=401)

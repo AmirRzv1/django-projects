@@ -3,6 +3,7 @@ from django.views import View
 from django.contrib import messages
 from .forms import *
 import requests
+import json
 
 
 # Create your views here.
@@ -24,20 +25,40 @@ class UserLoginView(View):
             username = data.get("username")
             password = data.get("password")
 
-            response = requests.post("http://127.0.0.1:8001/accounts/login/",
-                                    json={"username": username, "password": password},
-                                    timeout=5)
+            try:
+                response = requests.post(
+                    "http://127.0.0.1:8001/accounts/login/",
+                    json={"username": username, "password": password},
+                    timeout=5
+                )
+                response.raise_for_status()  # raise exception for HTTP 4xx/5xx
+                response_result = response.json()
 
-            print(response.status_code)
-            print(response.text)
-            response_result = response.json()
-            print("response result : ", response_result)
+            except requests.ConnectionError:
+                messages.error(request, "Cannot reach authentication server. Try again later.")
+                return render(request, "accounts/login.html", {"form": form})
+
+            except requests.Timeout:
+                messages.error(request, "Authentication server timed out. Try again later.")
+                return render(request, "accounts/login.html", {"form": form})
+
+            except requests.HTTPError:
+                messages.error(request, f"Authentication failed: {response.status_code}")
+                return render(request, "accounts/login.html", {"form": form})
+
+            except json.JSONDecodeError:
+                messages.error(request, "Invalid response from authentication server.")
+                return render(request, "accounts/login.html", {"form": form})
+
             if response_result.get("success"):
                 request.session["user_id"] = response_result["user_id"]
                 request.session["username"] = response_result["username"]
                 request.session["user_is_authenticated"] = True
                 messages.success(request, "User successfully logged in.")
                 return redirect("core:home")
+            else:
+                messages.error(request, response_result.get("error", "Invalid credentials"))
+                return render(request, "accounts/login.html", {"form": form})
 
 
 
