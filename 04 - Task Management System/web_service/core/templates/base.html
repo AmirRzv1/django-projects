@@ -10,50 +10,51 @@
     >
 </head>
 
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
 
-<nav class="navbar navbar-light bg-white shadow-sm">
-    <div class="container d-flex justify-content-between align-items-center">
+  <nav class="navbar navbar-light bg-white shadow-sm">
+      <div class="container d-flex justify-content-between align-items-center">
 
-        <!-- Left: Brand -->
-        <a class="navbar-brand fw-bold" >Task Tracker</a>
+          <a class="navbar-brand fw-bold">Task Tracker</a>
 
-        <!-- Center: Dashboard (only if logged in) -->
-        {% if user.is_authenticated %}
-        <div class="mx-auto">
-            <a  class="fw-bold text-decoration-none">
-                Dashboard
-            </a>
-        </div>
-        {% endif %}
+          {% if user.is_authenticated %}
+          <div class="mx-auto">
+              <a class="fw-bold text-decoration-none">
+                  Dashboard
+              </a>
+          </div>
+          {% endif %}
 
-        <!-- Right: Login / Logout -->
-        <div>
-            {% if user.is_authenticated %}
-              <span class="me-2">{{ user.username }}</span>
-              <a  class="btn btn-primary">Logout</a>
-            {% else %}
-              <a  href="{% url 'core:user_login' %}" class="btn btn-outline-primary me-2">Login</a>
-              <a  class="btn btn-primary">Sign Up</a>
-            {% endif %}
-        </div>
-    </div>
-</nav>
-
-{% if messages %}
-  <div class="container mt-3">
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}" >
-        {{ message }}
+          <div>
+              {% if user.is_authenticated %}
+                <span class="me-2">{{ user.username }}</span>
+                <a class="btn btn-primary">Logout</a>
+              {% else %}
+                <a href="{% url 'core:user_login' %}" class="btn btn-outline-primary me-2">Login</a>
+                <a class="btn btn-primary">Sign Up</a>
+              {% endif %}
+          </div>
       </div>
-    {% endfor %}
-  </div>
-{% endif %}
+  </nav>
 
-<div class="container mt-5">
-    {% block content %}
-    {% endblock %}
-</div>
-{% include 'includes/footer.html' %}
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content -->
+  <main class="container mt-5 flex-fill">
+      {% block content %}
+      {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  {% include 'includes/footer.html' %}
+
 </body>
 </html>
