@@ -19,7 +19,6 @@ class UserLoginAPIView(View):
 
     def post(self, request):
         data = json.loads(request.body)
-        print(data)
         username = data["username"]
         password = data["password"]
 
