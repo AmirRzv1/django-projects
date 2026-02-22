@@ -135,8 +135,12 @@ class UserRegisterView(View):
 
         return redirect("core:home")
 
+class DashboardView(View):
 
-
+    def get(self, request):
+        # user information
+        # user task information
+        return render("tasks/dashboard.html")
 
 
 
