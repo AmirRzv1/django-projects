@@ -57,7 +57,21 @@ class UserLogoutAPIView(View):
             logout(request)
             return JsonResponse({"success": True})
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class UserRegisterAPIView(View):
     def post(self, request):
-        pass
+        data = json.loads(request.body)
+
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+
+        user = User.objects.create_user(username=username, email=email, password=password)
+
+        return JsonResponse( {"success": True,} )
+
+
+
+
+
+
