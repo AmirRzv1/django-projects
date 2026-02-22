@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
+from django.db import IntegrityError, DatabaseError
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -60,15 +61,55 @@ class UserLogoutAPIView(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class UserRegisterAPIView(View):
     def post(self, request):
-        data = json.loads(request.body)
+
+        # Handle invalid JSON
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON."},
+                status=400
+            )
+
+        if not data:
+            return JsonResponse(
+                {"success": False, "error": "Data is empty."},
+                status=400
+            )
 
         username = data.get("username")
         email = data.get("email")
         password = data.get("password")
 
-        user = User.objects.create_user(username=username, email=email, password=password)
+        # Validate required fields
+        if not all([username, email, password]):
+            return JsonResponse(
+                {"success": False, "error": "All fields are required."},
+                status=400
+            )
 
-        return JsonResponse( {"success": True,} )
+        # Try to create user
+        try:
+            User.objects.create_user(
+                username=username,
+                email=email,
+                password=password
+            )
+        except IntegrityError:
+            return JsonResponse(
+                {"success": False, "error": "Username already exists."},
+                status=400
+            )
+        except DatabaseError:
+            return JsonResponse(
+                {"success": False, "error": "Database error."},
+                status=500
+            )
+
+        return JsonResponse(
+            {"success": True},
+            status=201
+        )
 
 
 
