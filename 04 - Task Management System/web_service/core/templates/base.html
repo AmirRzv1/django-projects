@@ -17,9 +17,9 @@
 
           <a href="{% url 'core:home' %}" class="navbar-brand fw-bold">Task Tracker</a>
 
-          {% if user.is_authenticated %}
+          {% if request.session.user_is_authenticated %}
           <div class="mx-auto">
-              <a class="fw-bold text-decoration-none">
+              <a href="{% url 'core:dashboard' %}" class="fw-bold text-decoration-none">
                   Dashboard
               </a>
           </div>

@@ -140,7 +140,7 @@ class DashboardView(View):
     def get(self, request):
         # user information
         # user task information
-        return render("tasks/dashboard.html")
+        return render(request, "tasks/dashboard.html")
 
 
 

@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}
 Dashboard | Task Tracker
@@ -16,7 +16,7 @@ Dashboard | Task Tracker
 
                 <!-- Welcome (Top Center) -->
                 <h4 class="card-title text-center mb-4">
-                    Welcome, {{ user.username }}!
+                    Welcome, {{ amir }}!
                 </h4>
 
                 <!-- Bottom Row -->
@@ -25,14 +25,14 @@ Dashboard | Task Tracker
                     <!-- Left: User Info -->
                     <div class="text-start">
                         <p class="mb-0">
-                            Email: {{ user.email }} <br>
-                            Total tasks: {{ tasks.count }}
+                            Email: {{ amir }} <br>
+                            Total tasks: {{ amir }}
                         </p>
                     </div>
 
                     <!-- Right: Recycle Bin Button -->
                     <div class="text-end">
-                        <a href="{% url 'tasks:recycle_bin'%}"
+                        <a
                                 class="btn btn-outline-secondary btn-sm">
                             Recycle Bin
                         </a>
@@ -58,7 +58,7 @@ Dashboard | Task Tracker
                     {% endif %}
                 </h5>
 
-                <a href="{% url 'tasks:task_create' %}"
+                <a
                    class="btn btn-primary btn-sm">
                     Create Task
                 </a>
@@ -93,12 +93,12 @@ Dashboard | Task Tracker
                         <!-- Action Buttons -->
                         <div class="d-flex flex-column justify-content-end align-items-end">
                             <div class="d-flex gap-2">
-                                <a href="{% url 'tasks:task_update' task.id %}"
+                                <a
                                    class="btn btn-success btn-sm">
                                     Update
                                 </a>
 
-                                <a href="{% url 'tasks:task_soft_delete' task.id %}"
+                                <a
                                    class="btn btn-danger btn-sm"
                                    onclick="return confirm('Are you sure you want to delete this task?');">
                                     Delete
@@ -126,29 +126,23 @@ Dashboard | Task Tracker
 
             <div class="list-group list-group-flush">
 
-                <a href="{% url 'tasks:task_dashboard' %}"
+                <a
                    class="list-group-item list-group-item-action
                    {% if not request.GET.status %}active{% endif %}">
                     All Tasks
                 </a>
 
-                <a href="{% url 'tasks:task_dashboard' %}?status=ongoing"
+                <a
                    class="list-group-item list-group-item-action
                    {% if request.GET.status == 'ongoing' %}active{% endif %}">
                     Ongoing
                 </a>
 
-                <a href="{% url 'tasks:task_dashboard' %}?status=completed"
+                <a
                    class="list-group-item list-group-item-action
                    {% if request.GET.status == 'completed' %}active{% endif %}">
                     Completed
                 </a>
-
-<!--                <a href="{% url 'tasks:task_dashboard' %}?status=deleted"-->
-<!--                   class="list-group-item list-group-item-action-->
-<!--                   {% if request.GET.status == 'deleted' %}active{% endif %}">-->
-<!--                    Deleted-->
-<!--                </a>-->
 
             </div>
         </div>
