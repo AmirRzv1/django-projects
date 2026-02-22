@@ -58,5 +58,6 @@ class UserLogoutAPIView(View):
             return JsonResponse({"success": True})
 
 
-
-
+class UserRegisterAPIView(View):
+    def post(self, request):
+        pass

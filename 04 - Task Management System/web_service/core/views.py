@@ -89,6 +89,25 @@ class UserRegisterView(View):
         form = self.form_class()
         return render(request, "accounts/register.html", {"form": form})
 
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            username = data["username"]
+            email = data["email"]
+            password = data["password"]
+
+            response = requests.post("http://127.0.0.1:8001/accounts/register/",
+                                     json={
+                                         "username": username,
+                                         "email": email,
+                                         "password": password,
+                                     }, timeout=5)
+            response_result = response.json()
+            if response_result.get("success"):
+                messages.success(request, "User created successfully.")
+                return redirect("core:home")
+
 
 
 
