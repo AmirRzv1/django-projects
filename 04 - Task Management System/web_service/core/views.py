@@ -91,23 +91,56 @@ class UserRegisterView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            username = data["username"]
-            email = data["email"]
-            password = data["password"]
 
+        if not form.is_valid():
+            messages.error(request, "Invalid form data.")
+            return redirect("core:home")
+
+        data = form.cleaned_data
+
+        username = data.get("username", None)
+        email = data.get("email", None)
+        password = data.get("password", None)
+
+        try:
             response = requests.post("http://127.0.0.1:8001/accounts/register/",
                                      json={
                                          "username": username,
                                          "email": email,
                                          "password": password,
                                      }, timeout=5)
-            response_result = response.json()
-            if response_result.get("success"):
-                messages.success(request, "User created successfully.")
-                return redirect("core:home")
 
+
+        except requests.exceptions.Timeout:
+            messages.error(request, "Registration service timed out.")
+            return redirect("core:home")
+
+        except requests.exceptions.ConnectionError:
+            messages.error(request, "Authentication service is unavailable.")
+            return redirect("core:home")
+
+        except requests.exceptions.RequestException:
+            messages.error(request, "Unexpected network error occurred.")
+            return redirect("core:home")
+
+        # Handle HTTP errors
+        if response.status_code != 200:
+            messages.error(request, f"Service error ({response.status_code}).")
+            return redirect("core:home")
+
+        # Handle invalid JSON
+        try:
+            response_result = response.json()
+        except ValueError:
+            messages.error(request, "Invalid response from authentication service.")
+            return redirect("core:home")
+
+        if response_result.get("success"):
+            messages.success(request, "User created successfully.")
+            return redirect("core:home")
+
+        messages.error("Invalid entries.")
+        return redirect("core:home")
 
 
 
