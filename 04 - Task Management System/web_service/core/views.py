@@ -85,6 +85,36 @@ class UserLogoutView(View):
 class UserRegisterView(View):
     form_class = UserRegisterForm
 
+    # validate the output of calling here and then send the final result back
+    # to the post method and there i will validate it.
+    def register_user(self, data):
+        try:
+            response = requests.post(
+                "http://127.0.0.1:8001/accounts/register/",
+                json=data,
+                timeout=5
+            )
+
+            if response.status_code != 200:
+                return False, "Service error."
+
+            try:
+                response_data = response.json()
+            except ValueError:
+                return False, "Invalid response from service."
+
+            if response_data.get("success"):
+                return True, "User created successfully."
+
+            return False, response_data.get("error", "Registration failed.")
+
+        except requests.exceptions.Timeout:
+            return False, "Service timed out."
+        except requests.exceptions.ConnectionError:
+            return False, "Service unavailable."
+        except requests.exceptions.RequestException:
+            return False, "Unexpected network error."
+
     def get(self, request):
         form = self.form_class()
         return render(request, "accounts/register.html", {"form": form})
@@ -96,50 +126,13 @@ class UserRegisterView(View):
             messages.error(request, "Invalid form data.")
             return redirect("core:home")
 
-        data = form.cleaned_data
+        success, message = self.register_user(form.cleaned_data)
 
-        username = data.get("username", None)
-        email = data.get("email", None)
-        password = data.get("password", None)
+        if success:
+            messages.success(request, message)
+        else:
+            messages.error(request, message)
 
-        try:
-            response = requests.post("http://127.0.0.1:8001/accounts/register/",
-                                     json={
-                                         "username": username,
-                                         "email": email,
-                                         "password": password,
-                                     }, timeout=5)
-
-
-        except requests.exceptions.Timeout:
-            messages.error(request, "Registration service timed out.")
-            return redirect("core:home")
-
-        except requests.exceptions.ConnectionError:
-            messages.error(request, "Authentication service is unavailable.")
-            return redirect("core:home")
-
-        except requests.exceptions.RequestException:
-            messages.error(request, "Unexpected network error occurred.")
-            return redirect("core:home")
-
-        # Handle HTTP errors
-        if response.status_code != 200:
-            messages.error(request, f"Service error ({response.status_code}).")
-            return redirect("core:home")
-
-        # Handle invalid JSON
-        try:
-            response_result = response.json()
-        except ValueError:
-            messages.error(request, "Invalid response from authentication service.")
-            return redirect("core:home")
-
-        if response_result.get("success"):
-            messages.success(request, "User created successfully.")
-            return redirect("core:home")
-
-        messages.error("Invalid entries.")
         return redirect("core:home")
 
 
