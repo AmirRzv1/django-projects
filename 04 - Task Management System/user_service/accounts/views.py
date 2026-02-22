@@ -111,8 +111,18 @@ class UserRegisterAPIView(View):
             status=201
         )
 
+@method_decorator(csrf_exempt, name="dispatch")
 class UserInformationAPIView(View):
-    def get
+    def get(self, request):
+        data = json.loads(request.body)
+
+        if not data:
+            return JsonResponse({"success": False, "msg": "Empty request."})
+
+        user = User.objects.get(pk=data["user_id"])
+        return JsonResponse({"success": True,
+                             "username": user.username,
+                             "email": user.email})
 
 
 
