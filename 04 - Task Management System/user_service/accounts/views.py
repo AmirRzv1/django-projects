@@ -111,6 +111,9 @@ class UserRegisterAPIView(View):
             status=201
         )
 
+class UserInformationAPIView(View):
+    def get
+
 
 
 

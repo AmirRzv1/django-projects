@@ -139,8 +139,19 @@ class DashboardView(View):
 
     def get(self, request):
         # user information
+        user_id = request.session.get("user_id")
+        if not user_id:
+            messages.error(request, "You need to login first!")
+            return redirect("core:home")
+
+        response = request.get("http://127.0.0.1/accounts/information/",
+                                json={ "user_id": user_id },
+                                timeout=5)
+
+        response_result = response.json()
+        print(response_result)
         # user task information
-        return render(request, "tasks/dashboard.html")
+        return render(request, "tasks/dashboard.html", {"task": task})
 
 
 
