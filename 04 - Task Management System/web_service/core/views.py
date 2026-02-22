@@ -82,6 +82,13 @@ class UserLogoutView(View):
             messages.success(request, "User successfully logged out.")
             return redirect("core:home")
 
+class UserRegisterView(View):
+    form_class = UserRegisterForm
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, "accounts/register.html", {"form": form})
+
 
 
 
