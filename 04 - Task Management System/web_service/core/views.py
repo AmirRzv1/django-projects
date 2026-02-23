@@ -182,7 +182,7 @@ class UserTaskCreateView(View):
             description = data["description"]
             user_id = request.session.get("user_id")
 
-            response = requests.post("http:127.0.0.1:8000/tasks/tasks/",
+            response = requests.post("http://127.0.0.1:8000/tasks/tasks/",
                                      json={
                                          "user_id": user_id,
                                          "title": title,

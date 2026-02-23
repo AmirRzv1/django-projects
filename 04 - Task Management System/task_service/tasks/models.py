@@ -15,7 +15,7 @@ class Task(models.Model):
     status = models.CharField(max_length=15, default="ongoing", choices=STATUS_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    owner = models.IntegerField(unique=True)
+    owner = models.IntegerField()
 
     def __str__(self):
         return self.title + "-" + self.status
