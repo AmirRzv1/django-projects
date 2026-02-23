@@ -1,15 +1,26 @@
-from django.shortcuts import render, redirect
-from django.views import View
-from django.contrib import messages
-from .forms import *
 import requests
 import json
 
+from .forms import *
+from django.shortcuts import render, redirect
+from django.views import View
+from django.contrib import messages
+from django.template import TemplateDoesNotExist, TemplateSyntaxError
+from django.http import HttpResponseServerError
 
 # Create your views here.
 class HomeView(View):
     def get(self, request):
-        return render(request, "landing.html")
+        # just show the landing page so simple.
+        try:
+            return render(request, "landing.html")
+        except TemplateSyntaxError:
+            return HttpResponseServerError("Landing page template not found.")
+        except TemplateDoesNotExist as e:
+            return HttpResponseServerError(f"Template syntax error: {str(e)}")
+        except Exception as e:
+            return HttpResponseServerError(f"Unexpected error: {str(e)}")
+
 
 class UserLoginView(View):
     form_class = UserLoginForm
