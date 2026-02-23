@@ -7,13 +7,19 @@ from .models import Task
 
 # Create your views here.
 @method_decorator(csrf_exempt, name="dispatch")
-class UserTasksAPIView(View):
+class UserTasksGetAPIView(View):
     def get(self, request):
         data = json.loads(request.body)
         user_id = data.get("user_id")
         tasks = Task.objects.filter(owner=user_id)
         return JsonResponse( {"success": True,
                               "tasks": tasks} )
+
+class UserTaskCreateAPIView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        user_id = data.get("user_id")
+
 
 
 

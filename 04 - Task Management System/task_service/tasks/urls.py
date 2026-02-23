@@ -4,5 +4,5 @@ from .views import *
 app_name = "tasks"
 
 urlpatterns = [
-    path("tasks/", UserTasksAPIView.as_view(), name="user_task"),
+    path("tasks/", UserTasksGetAPIView.as_view(), name="user_task"),
 ]

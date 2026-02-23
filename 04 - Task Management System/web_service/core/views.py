@@ -166,7 +166,12 @@ class DashboardView(View):
 
         return render(request, "tasks/dashboard.html", {"tasks": user_task_response_result})
 
+class UserTaskCreateView(View):
+    form_class = TasksCreateForm
 
+    def get(self, request):
+        form = self.form_class()
+        return render(request, "tasks/task_create.html", {"form": form})
 
 
 
