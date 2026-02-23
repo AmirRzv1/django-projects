@@ -152,7 +152,9 @@ class DashboardView(View):
         request.session["username"] = response_result.get("username")
         request.session["email"] = response_result.get("email", "No email.")
         print(response_result)
-        # user task information
+
+        # user tasks
+
 
 
 
