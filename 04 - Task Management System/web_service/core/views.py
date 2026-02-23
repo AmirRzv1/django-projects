@@ -174,4 +174,30 @@ class UserTaskCreateView(View):
         return render(request, "tasks/task_create.html", {"form": form})
 
 
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            title = data["title"]
+            description = data["description"]
+            user_id = request.session.get("user_id")
+
+            response = requests.post("http:127.0.0.1:8000/tasks/tasks/",
+                                     json={
+                                         "user_id": user_id,
+                                         "title": title,
+                                         "description": description
+                                     })
+            response_result = response.json()
+            if response_result.get("success"):
+                messages.success(request, "Task created.")
+                return redirect("core:dashboard")
+            else:
+                messages.error(request, "Task creation Error !!!")
+                return redirect("core:task_create")
+
+
+
+
+
 

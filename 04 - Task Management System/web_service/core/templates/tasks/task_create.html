@@ -14,7 +14,7 @@
                     {% if task %}Update Task{% else %}Create Task{% endif %}
                 </h4>
 
-                <form method="post">
+                <form method="post" action="{% url 'core:task_create' %}">
                     {% csrf_token %}
 
                     <div class="mb-3">
