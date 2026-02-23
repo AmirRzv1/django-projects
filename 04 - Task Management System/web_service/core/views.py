@@ -144,14 +144,19 @@ class DashboardView(View):
             messages.error(request, "You need to login first!")
             return redirect("core:home")
 
-        response = request.get("http://127.0.0.1/accounts/information/",
+        response = requests.get("http://127.0.0.1:8001/accounts/information/",
                                 json={ "user_id": user_id },
                                 timeout=5)
 
         response_result = response.json()
+        request.session["username"] = response_result.get("username")
+        request.session["email"] = response_result.get("email", "No email.")
         print(response_result)
         # user task information
-        return render(request, "tasks/dashboard.html", {"task": task})
+
+
+
+        return render(request, "tasks/dashboard.html", )
 
 
 
