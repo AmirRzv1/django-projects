@@ -21,13 +21,25 @@ class HomeView(View):
         except Exception as e:
             return HttpResponseServerError(f"Unexpected error: {str(e)}")
 
-
 class UserLoginView(View):
     form_class = UserLoginForm
+    template_name = "accounts/login.html"
+
+    # because this part repeat a lot i put it here.
+    def handle_template_and_error(self, request, message, form):
+        messages.error(request, message)
+        return render(request, self.template_name, {"form": form})
 
     def get(self, request):
         form = self.form_class()
-        return render(request, "accounts/login.html", {"form": form})
+        try:
+            return render(request, "accounts/login.html", {"form": form})
+        except TemplateSyntaxError:
+            return HttpResponseServerError("Landing page template not found.")
+        except TemplateDoesNotExist as e:
+            return HttpResponseServerError(f"Template syntax error: {str(e)}")
+        except Exception as e:
+            return HttpResponseServerError(f"Unexpected error: {str(e)}")
 
     def post(self, request):
         form = self.form_class(request.POST)
@@ -46,20 +58,24 @@ class UserLoginView(View):
                 response_result = response.json()
 
             except requests.ConnectionError:
-                messages.error(request, "Cannot reach authentication server. Try again later.")
-                return render(request, "accounts/login.html", {"form": form})
+                msg = "Cannot reach authentication server. Try again later."
+                return self.handle_template_and_error(request, msg, form)
 
             except requests.Timeout:
-                messages.error(request, "Authentication server timed out. Try again later.")
-                return render(request, "accounts/login.html", {"form": form})
+                msg = "Authentication server timed out. Try again later."
+                return self.handle_template_and_error(request, msg, form)
 
             except requests.HTTPError:
-                messages.error(request, f"Authentication failed: {response.status_code}")
-                return render(request, "accounts/login.html", {"form": form})
+                msg = f"Authentication failed: {response.status_code}"
+                return self.handle_template_and_error(request, msg, form)
 
             except json.JSONDecodeError:
-                messages.error(request, "Invalid response from authentication server.")
-                return render(request, "accounts/login.html", {"form": form})
+                msg = "Invalid response from authentication server."
+                return self.handle_template_and_error(request, msg, form)
+
+            except Exception as e:
+                msg = f"Unexpected error: {str(e)}"
+                return self.handle_template_and_error(request, msg, form)
 
             if response_result.get("success"):
                 request.session["user_id"] = response_result["user_id"]
@@ -67,9 +83,11 @@ class UserLoginView(View):
                 request.session["user_is_authenticated"] = True
                 messages.success(request, "User successfully logged in.")
                 return redirect("core:home")
+
             else:
-                messages.error(request, response_result.get("error", "Invalid credentials"))
-                return render(request, "accounts/login.html", {"form": form})
+                msg = response_result.get("error", "Invalid credentials")
+                return self.handle_template_and_error(request, msg, form)
+
 
 class UserLogoutView(View):
     def post(self, request):
