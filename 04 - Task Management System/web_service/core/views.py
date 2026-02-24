@@ -269,33 +269,64 @@ class DashboardView(View):
 
 class UserTaskCreateView(View):
     form_class = TasksCreateForm
+    template_class = "tasks/task_create.html"
+
+    # because this part repeat a lot i put it here.
+    def handle_template_and_error(self, request, message, form):
+        messages.error(request, message)
+        return render(request, self.template_name, {"form": form})
 
     def get(self, request):
         form = self.form_class()
-        return render(request, "tasks/task_create.html", {"form": form})
-
+        return render(request, self.template_class, {"form": form})
 
     def post(self, request):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            title = data["title"]
-            description = data["description"]
-            user_id = request.session.get("user_id")
+        user_id = request.session.get("user_id")
 
+        # Must be logged in
+        if not user_id:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
+
+        form = self.form_class(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_class, {"form": form})
+
+        data = form.cleaned_data
+
+        try:
             response = requests.post("http://127.0.0.1:8000/tasks/tasks/",
                                      json={
                                          "user_id": user_id,
-                                         "title": title,
-                                         "description": description
+                                         "title": data["title"],
+                                         "description": data["description"]
                                      })
+            response.raise_for_status()
+
+        except (RequestException, HTTPError):
+            msg = "Task service unavailable. Please try again."
+            return self.handle_template_and_error(request, msg, form)
+
+        # Validate response body
+        if not response.content:
+            msg = "Empty response from task service."
+            return self.handle_template_and_error(request, msg, form)
+
+        try:
             response_result = response.json()
-            if response_result.get("success"):
-                messages.success(request, "Task created.")
-                return redirect("core:dashboard")
-            else:
-                messages.error(request, "Task creation Error !!!")
-                return redirect("core:task_create")
+        except ValueError:
+            msg = "Invalid response from task service."
+            return self.handle_template_and_error(request, msg, form)
+
+
+        # Logical validation
+        if response_result.get("success"):
+            messages.success(request, "Task created successfully.")
+            return redirect("core:dashboard")
+
+        msg = response_result.get("error", "Task creation failed.")
+        return self.handle_template_and_error(request, msg, form)
+
 
 
 
