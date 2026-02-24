@@ -221,29 +221,49 @@ class DashboardView(View):
     def get(self, request):
         # user information
         user_id = request.session.get("user_id")
+
         if not user_id:
             messages.error(request, "You need to login first!")
             return redirect("core:home")
+        try:
+            user_response = requests.get("http://127.0.0.1:8001/accounts/information/",
+                                    json={ "user_id": user_id },
+                                    timeout=5)
+            if not user_response.content:
+                raise ValueError("Empty Response.")
 
-        user_response = requests.get("http://127.0.0.1:8001/accounts/information/",
-                                json={ "user_id": user_id },
-                                timeout=5)
+            user_response_result = user_response.json()
 
-        user_response_result = user_response.json()
+        except(RequestException, HTTPError):
+                messages.error(request, "Unable to load user information.")
+                return redirect("core:home")
+
+        except ValueError:
+            messages.error(request, "Invalid user information response.")
+            return redirect("core:home")
+
         request.session["username"] = user_response_result.get("username")
         request.session["email"] = user_response_result.get("email", "No email.")
-        print(user_response_result)
 
         # user tasks
-        user_task_response = requests.get("http://127.0.0.1:8000/tasks/tasks/",
-                                          json={"user_id": user_id},
-                                          timeout=5)
-        if not user_task_response:
-            user_task_response_result = []
-        else:
-            user_task_response_result = user_task_response.json()
-            request.session["tasks"] = user_task_response_result
-            request.session["tasks_count"] = len(user_task_response_result)
+        try:
+            user_task_response = requests.get("http://127.0.0.1:8000/tasks/tasks/",
+                                              json={"user_id": user_id},
+                                              timeout=5)
+
+            user_task_response.raise_for_status()
+
+            if user_task_response.content:
+                user_task_response_result = user_task_response.json()
+
+        except (RequestException, HTTPError):
+            messages.warning(request, "Tasks service unavailable. Showing empty task list.")
+
+        except ValueError:
+            messages.warning(request, "Invalid tasks response. Showing empty task list.")
+
+        request.session["tasks"] = user_task_response_result
+        request.session["tasks_count"] = len(user_task_response_result)
 
         return render(request, "tasks/dashboard.html", {"tasks": user_task_response_result})
 
