@@ -1,6 +1,7 @@
 import requests
 import json
 
+from requests.exceptions import RequestException
 from .forms import *
 from django.shortcuts import render, redirect
 from django.views import View
@@ -8,7 +9,6 @@ from django.contrib import messages
 from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.http import HttpResponseServerError
 
-# Create your views here.
 class HomeView(View):
     def get(self, request):
         # just show the landing page so simple.
@@ -88,28 +88,64 @@ class UserLoginView(View):
                 msg = response_result.get("error", "Invalid credentials")
                 return self.handle_template_and_error(request, msg, form)
 
-
 class UserLogoutView(View):
+    # because this part repeat a lot i put it here.
+    def handle_template_and_error(self, request, message):
+        messages.error(request, message)
+        return redirect("core:home")
+
     def post(self, request):
         user_id = request.session.get("user_id")
-        print("user_id = ", user_id)
+
         if not user_id:
-            messages.error(request, "You are not logged in.")
+            msg = "You are not logged in."
+            return self.handle_template_and_error(request, msg)
+
+        try:
+            response = requests.post("http://127.0.0.1:8001/accounts/logout/",
+                                     json={"user_id": user_id},
+                                     timeout=5
+                                     )
+            # Raise exception for 4xx / 5xx
+            response.raise_for_status()
+
+            # Check empty body
+            if not response.content:
+                raise ValueError("Empty response from authentication server.")
+
+            final_response = response.json()
+
+        except requests.ConnectionError:
+            msg = "Cannot reach authentication server."
+            return self.handle_template_and_error(request, msg)
+
+        except requests.Timeout:
+            msg = "Authentication server timed out."
+            return self.handle_template_and_error(request, msg)
+
+        except requests.HTTPError:
+            msg = f"Logout failed. Status code: {response.status_code}"
+            return self.handle_template_and_error(request, msg)
+
+        except ValueError:
+            msg = "Invalid response from authentication server."
+            return self.handle_template_and_error(request, msg)
+
+        except RequestException:
+            msg = "Unexpected error while contacting authentication server."
+            return self.handle_template_and_error(request, msg)
+
+        # Logical response validation
+        if not final_response.get("success"):
+            messages.error(request, final_response.get("error", "Logout failed."))
             return redirect("core:home")
 
-        response = requests.post("http://127.0.0.1:8001/accounts/logout/",
-                                 json={"user_id": user_id},
-                                 timeout=5
-                                 )
-        print("respnse = ", response)
-        final_response = response.json()
-        print("final_result = ", final_response)
-        if final_response.get("success"):
-            request.session.pop("user_id", None)
-            request.session.pop("username", None)
-            request.session.pop("user_is_authenticated", None)
-            messages.success(request, "User successfully logged out.")
-            return redirect("core:home")
+        # ✅ Logout success → destroy entire session
+        # using flush to clear the whole session and delete what is left
+        request.session.flush()
+
+        messages.success(request, "User successfully logged out.")
+        return redirect("core:home")
 
 class UserRegisterView(View):
     form_class = UserRegisterForm
