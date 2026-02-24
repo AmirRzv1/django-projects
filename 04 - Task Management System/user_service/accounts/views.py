@@ -2,13 +2,13 @@ import json
 from django.http import JsonResponse
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from django.db import IntegrityError, DatabaseError
 
+# just disable the csrf for whole views in the project to pass it
+# because im using it as only internall api calling it doesnt render
+# anything so isntead of didsable the csrf for each view i disable it globally
 
-@method_decorator(csrf_exempt, name="dispatch")
 class UserLoginAPIView(View):
     # check that if the user is sending the username or email
     # based on that we return the related information
@@ -24,26 +24,23 @@ class UserLoginAPIView(View):
             data = json.loads(request.body)
             username = data["username"]
             password = data["password"]
-        except (json.JSONDecodeError, KeyError):
+        except json.JSONDecodeError:
             return JsonResponse({"success": False, "error": "Invalid request body"}, status=400)
+
+        if not username or not password:
+            return JsonResponse({"success": False, "error": "Username and password are required"}, status=400)
 
         result = self.validate_username_or_email(username)
 
-        if result.get("username", None):
-            user = authenticate(username=result["username"], password=password)
-            if user:
-                login(request, user)
-                return JsonResponse({"success": True, "user_id": user.id, "username": user.username})
+        try:
+            if "username" in result:
+                user = authenticate(username=result["username"], password=password)
 
-        else:
-            user = authenticate(username=result["username"], password=password)
-            if user:
-                login(request, user)
-                return JsonResponse({"success": True, "user_id": user.id, "username": user.username})
+            else:
+                user = authenticate(username=result["email"], password=password)
 
         return JsonResponse({"success": False, "error": "Invalid username or password"}, status=401)
 
-@method_decorator(csrf_exempt, name="dispatch")
 class UserLogoutAPIView(View):
     def post(self, request):
         data = json.loads(request.body)
@@ -58,7 +55,6 @@ class UserLogoutAPIView(View):
             logout(request)
             return JsonResponse({"success": True})
 
-@method_decorator(csrf_exempt, name="dispatch")
 class UserRegisterAPIView(View):
     def post(self, request):
 
@@ -111,7 +107,6 @@ class UserRegisterAPIView(View):
             status=201
         )
 
-@method_decorator(csrf_exempt, name="dispatch")
 class UserInformationAPIView(View):
     def get(self, request):
         data = json.loads(request.body)
