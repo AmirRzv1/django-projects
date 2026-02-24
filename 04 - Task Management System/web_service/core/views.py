@@ -1,7 +1,7 @@
 import requests
 import json
 
-from requests.exceptions import RequestException
+from requests.exceptions import RequestException, HTTPError
 from .forms import *
 from django.shortcuts import render, redirect
 from django.views import View
@@ -160,25 +160,41 @@ class UserRegisterView(View):
                 timeout=5
             )
 
-            if response.status_code != 200:
-                return False, "Service error."
+            # Raise for 4xx / 5xx
+            response.raise_for_status()
 
+        except HTTPError:
+            # Try to extract error message from service
             try:
-                response_data = response.json()
+                error_data = response.json()
+                return False, error_data.get("error", "Registration failed.")
             except ValueError:
-                return False, "Invalid response from service."
+                return False, f"Service error. Status code: {response.status_code}"
 
-            if response_data.get("success"):
-                return True, "User created successfully."
-
-            return False, response_data.get("error", "Registration failed.")
-
-        except requests.exceptions.Timeout:
+        except requests.Timeout:
             return False, "Service timed out."
-        except requests.exceptions.ConnectionError:
+
+        except requests.ConnectionError:
             return False, "Service unavailable."
-        except requests.exceptions.RequestException:
+
+        except RequestException:
             return False, "Unexpected network error."
+
+        # Validate body existence
+        if not response.content:
+            return False, "Empty response from service."
+
+        # Validate JSON
+        try:
+            response_data = response.json()
+        except ValueError:
+            return False, "Invalid response from service."
+
+        # Logical validation
+        if response_data.get("success"):
+            return True, "User created successfully."
+
+        return False, response_data.get("error", "Registration failed.")
 
     def get(self, request):
         form = self.form_class()
