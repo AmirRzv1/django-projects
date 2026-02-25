@@ -9,11 +9,24 @@ from .models import Task
 @method_decorator(csrf_exempt, name="dispatch")
 class UserTasksGetAPIView(View):
     def get(self, request):
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Invalid request body"},status=400)
+
         user_id = data.get("user_id")
-        tasks = Task.objects.filter(owner=user_id)
-        return JsonResponse( {"success": True,
-                              "tasks": tasks} )
+        if not user_id:
+            return JsonResponse({"success": False, "error": "Missing user_id"},status=400)
+
+        tasks_query = Task.objects.filter(owner=user_id)
+        tasks = list(tasks_query.values())
+
+        return JsonResponse(
+            {
+                "success": True,
+                "tasks": tasks
+            },
+            status=200)
 
 class UserTaskCreateAPIView(View):
     def post(self, request):

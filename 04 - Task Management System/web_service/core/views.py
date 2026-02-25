@@ -198,6 +198,8 @@ class DashboardView(View):
         request.session["email"] = user_response_result.get("email", "No email.")
 
         # user tasks
+        tasks = []
+
         try:
             user_task_response = requests.get("http://127.0.0.1:8000/tasks/tasks/",
                                               json={"user_id": user_id},
@@ -209,15 +211,12 @@ class DashboardView(View):
                 user_task_response_result = user_task_response.json()
 
         except (RequestException, HTTPError):
-            messages.warning(request, "Tasks service unavailable. Showing empty task list.")
+            messages.warning(request, "Tasks service unavailable.")
 
         except ValueError:
-            messages.warning(request, "Invalid tasks response. Showing empty task list.")
+            messages.warning(request, "Invalid tasks response.")
 
-        request.session["tasks"] = user_task_response_result
-        request.session["tasks_count"] = len(user_task_response_result)
-
-        return render(request, "tasks/dashboard.html", {"tasks": user_task_response_result})
+        return render(request, "tasks/dashboard.html", {"tasks": tasks, "task_count": len(tasks)})
 
 class UserTaskCreateView(View):
     form_class = TasksCreateForm
