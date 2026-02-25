@@ -64,21 +64,19 @@ class UserLoginAPIView(View):
                 status=500
                     )
 
-        return JsonResponse({"success": False, "error": "Invalid username or password"}, status=401)
-
-class UserLogoutAPIView(View):
-    def post(self, request):
-        data = json.loads(request.body)
-        print("data =", data)
-        user_id = data.get("user_id")
-        if not user_id:
-            return JsonResponse({"success": False, "error": "No user exists."}, status=400)
-
-        real_user = User.objects.get(id=user_id)
-        print("real_user = ", real_user)
-        if real_user:
-            logout(request)
-            return JsonResponse({"success": True})
+# class UserLogoutAPIView(View):
+#     def post(self, request):
+#         try:
+#             data = json.loads(request.body)
+#         except json.JSONDecodeError:
+#             return JsonResponse( {"success": False, "error": "Invalid Request Body !"}, status=400 )
+#
+#         user_id = data.get("user_id")
+#         if not user_id:
+#             return JsonResponse({"success": False, "error": "No user exists."}, status=400)
+#
+#         request.session.flush()
+#         return JsonResponse( {"success": True})
 
 class UserRegisterAPIView(View):
     def post(self, request):

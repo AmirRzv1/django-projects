@@ -89,59 +89,11 @@ class UserLoginView(View):
                 return self.handle_template_and_error(request, msg, form)
 
 class UserLogoutView(View):
-    # because this part repeat a lot i put it here.
-    def handle_template_and_error(self, request, message):
-        messages.error(request, message)
-        return redirect("core:home")
-
     def post(self, request):
-        user_id = request.session.get("user_id")
-
-        if not user_id:
-            msg = "You are not logged in."
-            return self.handle_template_and_error(request, msg)
-
-        try:
-            response = requests.post("http://127.0.0.1:8001/accounts/logout/",
-                                     json={"user_id": user_id},
-                                     timeout=5
-                                     )
-            # Raise exception for 4xx / 5xx
-            response.raise_for_status()
-
-            # Check empty body
-            if not response.content:
-                raise ValueError("Empty response from authentication server.")
-
-            final_response = response.json()
-
-        except requests.ConnectionError:
-            msg = "Cannot reach authentication server."
-            return self.handle_template_and_error(request, msg)
-
-        except requests.Timeout:
-            msg = "Authentication server timed out."
-            return self.handle_template_and_error(request, msg)
-
-        except requests.HTTPError:
-            msg = f"Logout failed. Status code: {response.status_code}"
-            return self.handle_template_and_error(request, msg)
-
-        except ValueError:
-            msg = "Invalid response from authentication server."
-            return self.handle_template_and_error(request, msg)
-
-        except RequestException:
-            msg = "Unexpected error while contacting authentication server."
-            return self.handle_template_and_error(request, msg)
-
-        # Logical response validation
-        if not final_response.get("success"):
-            messages.error(request, final_response.get("error", "Logout failed."))
+        if not request.session.get("user_id"):
+            messages.error(request, "You are not logged in.")
             return redirect("core:home")
 
-        # ✅ Logout success → destroy entire session
-        # using flush to clear the whole session and delete what is left
         request.session.flush()
 
         messages.success(request, "User successfully logged out.")
