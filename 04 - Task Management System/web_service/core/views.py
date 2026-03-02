@@ -225,7 +225,7 @@ class UserTaskCreateView(View):
     # because this part repeat a lot i put it here.
     def handle_template_and_error(self, request, message, form):
         messages.error(request, message)
-        return render(request, self.template_name, {"form": form})
+        return render(request, self.template_class, {"form": form})
 
     def get(self, request):
         form = self.form_class()
@@ -246,7 +246,7 @@ class UserTaskCreateView(View):
         data = form.cleaned_data
 
         try:
-            response = requests.post("http://127.0.0.1:8000/tasks/tasks/",
+            response = requests.post("http://127.0.0.1:8000/tasks/task_create/",
                                      json={
                                          "user_id": user_id,
                                          "title": data["title"],

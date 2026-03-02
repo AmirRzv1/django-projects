@@ -28,6 +28,7 @@ class UserTasksGetAPIView(View):
             },
             status=200)
 
+@method_decorator(csrf_exempt, name="dispatch")
 class UserTaskCreateAPIView(View):
     def post(self, request):
         data = json.loads(request.body)
