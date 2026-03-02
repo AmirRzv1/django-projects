@@ -279,6 +279,11 @@ class UserTaskCreateView(View):
         msg = response_result.get("error", "Task creation failed.")
         return self.handle_template_and_error(request, msg, form)
 
+class TaskSoftDelete(View):
+
+    def post(self, request, task_id):
+        print("task_id : ", task_id)
+        return redirect("core:dashboard")
 
 
 

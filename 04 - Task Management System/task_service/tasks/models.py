@@ -18,4 +18,4 @@ class Task(models.Model):
     owner = models.IntegerField()
 
     def __str__(self):
-        return self.title + "-" + self.status
+        return f"id : {self.pk} | title = {self.title} |  status = {self.status}"
