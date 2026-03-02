@@ -1,12 +1,9 @@
 import json
 from django.http import JsonResponse
 from django.views import View
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 from .models import Task
 
 # Create your views here.
-@method_decorator(csrf_exempt, name="dispatch")
 class UserTasksGetAPIView(View):
     def get(self, request):
         try:
@@ -28,7 +25,6 @@ class UserTasksGetAPIView(View):
             },
             status=200)
 
-@method_decorator(csrf_exempt, name="dispatch")
 class UserTaskCreateAPIView(View):
     def post(self, request):
         data = json.loads(request.body)
@@ -45,6 +41,19 @@ class UserTaskCreateAPIView(View):
                 "success": False
             } )
 
+# need adjustment
+class TaskSoftDeleteAPIView(View):
+
+    def post(self, request):
+        data = json.loads(request.body)
+        if not data:
+            return JsonResponse( {"success": False, "error": "Empty data !"} )
+
+        task_id = data.get("task_id")
+        real_task = Task.objects.get(pk=task_id)
+        real_task.status = "soft_delete"
+        real_task.save()
+        return JsonResponse( {"success": True, } )
 
 
 
