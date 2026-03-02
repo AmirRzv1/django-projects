@@ -95,7 +95,7 @@ Dashboard | Task Tracker
                         <!-- Action Buttons -->
                         <div class="d-flex flex-column justify-content-end align-items-end">
                             <div class="d-flex gap-2">
-                                <a
+                                <a href="{% url 'core:task_update' task.id %}"
                                    class="btn btn-success btn-sm">
                                     Update
                                 </a>

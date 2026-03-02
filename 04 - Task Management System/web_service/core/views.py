@@ -294,8 +294,10 @@ class TaskSoftDelete(View):
         messages.error(request, "Task didn't soft deleted.")
         return redirect("core:dashboard")
 
+class TaskUpdateView(View):
+    class_template = "tasks/task_update.html"
+    class_form = TaskUpdateForm
 
-
-
-
-
+    def get(self, request, task_id):
+        form = self.class_form()
+        return render(request, self.class_template, {"form": form})

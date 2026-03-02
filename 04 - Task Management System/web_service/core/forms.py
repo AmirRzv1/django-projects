@@ -12,3 +12,17 @@ class UserRegisterForm(forms.Form):
 class TasksCreateForm(forms.Form):
     title = forms.CharField()
     description = forms.CharField()
+
+class TaskUpdateForm(forms.Form):
+    choices = [("ongoing", "OnGoing"),
+            ("completed", "Completed")]
+    title = forms.CharField()
+    description = forms.CharField()
+    status = forms.ChoiceField(choices=choices)
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     self.fields["status"].choices = [
+    #
+    #     ]
