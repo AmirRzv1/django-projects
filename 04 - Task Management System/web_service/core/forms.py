@@ -19,10 +19,3 @@ class TaskUpdateForm(forms.Form):
     title = forms.CharField()
     description = forms.CharField()
     status = forms.ChoiceField(choices=choices)
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     self.fields["status"].choices = [
-    #
-    #     ]

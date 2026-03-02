@@ -55,6 +55,20 @@ class TaskSoftDeleteAPIView(View):
         real_task.save()
         return JsonResponse( {"success": True, } )
 
+class TaskDetailAPIView(View):
+    def get(self, request):
+        data = json.loads(request.body)
+        task_id = data.get("task_id")
+        user_id = data.get("user_id")
+        try:
+            task = Task.objects.get(pk=task_id, owner=user_id)
+            print(f"data = {data}")
+            print(f"task_id = {task_id}")
+            print(f"user_id = {user_id}")
+            print(f"task = {task}")
+            return JsonResponse( data={"success": True, "task": task})
+        except Exception as e:
+            return JsonResponse( {"success": False, "error": e})
 
 
 

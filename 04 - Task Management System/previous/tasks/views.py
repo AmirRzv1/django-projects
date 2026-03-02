@@ -74,7 +74,6 @@ class TaskSoftDeleteView(View):
         messages.success(request, "Task soft deleted successfully!")
         return redirect("tasks:task_dashboard")
 
-
 class RecycleBinView(View):
     def get(self, request):
         soft_deleted_tasks = Task.objects.filter(owner=request.user, status="soft_delete")
