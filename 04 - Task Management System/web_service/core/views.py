@@ -282,7 +282,16 @@ class UserTaskCreateView(View):
 class TaskSoftDelete(View):
 
     def post(self, request, task_id):
-        print("task_id : ", task_id)
+        response = requests.post("http://127.0.0.1:8000/tasks/task-soft-delete/",
+                                 json={"task_id": task_id},
+                                 timeout=5)
+        response.raise_for_status()
+        result = response.json()
+        if result.get("success"):
+            messages.success(request, "Task soft deleted.")
+            return redirect("core:dashboard")
+
+        messages.error(request, "Task didn't soft deleted.")
         return redirect("core:dashboard")
 
 
