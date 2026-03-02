@@ -199,7 +199,7 @@ class DashboardView(View):
 
         # user tasks
         tasks = []
-
+        task_count = 0
         try:
             user_task_response = requests.get("http://127.0.0.1:8000/tasks/tasks/",
                                               json={"user_id": user_id},
@@ -211,13 +211,18 @@ class DashboardView(View):
                 user_task_response_result = user_task_response.json()
                 tasks = user_task_response_result.get("tasks")
 
+                print(tasks)
+            for task in tasks:
+                if task["status"] != "soft_delete":
+                    task_count += 1
+
         except (RequestException, HTTPError):
             messages.warning(request, "Tasks service unavailable.")
 
         except ValueError:
             messages.warning(request, "Invalid tasks response.")
 
-        return render(request, "tasks/dashboard.html", {"tasks": tasks, "task_count": len(tasks)})
+        return render(request, "tasks/dashboard.html", {"tasks": tasks, "task_count": task_count})
 
 class UserTaskCreateView(View):
     form_class = TasksCreateForm
