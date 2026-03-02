@@ -66,6 +66,8 @@ Dashboard | Task Tracker
 
             <ul class="list-group list-group-flush">
                 {% for task in tasks %}
+                {# show only the task with ongoing or completed #}
+                {% if task.status == "ongoing" or task.status == "completed" %}
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between">
 
@@ -109,6 +111,7 @@ Dashboard | Task Tracker
 
                     </div>
                 </li>
+                {% endif %}
                 {% empty %}
                 <li class="list-group-item text-center text-muted">
                     You have no tasks yet.
