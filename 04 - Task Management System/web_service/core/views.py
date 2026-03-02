@@ -209,6 +209,7 @@ class DashboardView(View):
 
             if user_task_response.content:
                 user_task_response_result = user_task_response.json()
+                tasks = user_task_response_result.get("tasks")
 
         except (RequestException, HTTPError):
             messages.warning(request, "Tasks service unavailable.")
