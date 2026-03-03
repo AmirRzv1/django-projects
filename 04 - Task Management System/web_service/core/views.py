@@ -352,10 +352,17 @@ class RecycleBinView(View):
 class TaskRestore(View):
     def post(self, request, task_id):
         response = requests.post("http://127.0.0.1:8000/tasks/task-restore/",
-                                 json={"task_id": task_id},
+                                 json={"task_id": task_id, "user_id": request.session["user_id"]},
                                  timeout=5)
+        response.raise_for_status()
+        result = response.json()
 
+        if result.get("success"):
+            messages.success(request, "Task restored successfully.")
+            return redirect("core:recycle_bin")
 
+        messages.error(request, "Task didn't restored !!")
+        return redirect("core:recycle_bin")
 
 
 

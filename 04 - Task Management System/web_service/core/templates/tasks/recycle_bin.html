@@ -52,6 +52,7 @@ Recycle Bin | Task Tracker
 
             <ul class="list-group list-group-flush">
                 {% for task in tasks %}
+                {% if task.status == "soft_delete" %}
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between">
 
@@ -99,6 +100,8 @@ Recycle Bin | Task Tracker
 
                     </div>
                 </li>
+                {% endif %}
+
                 {% empty %}
                 <li class="list-group-item text-center text-muted">
                     Recycle Bin is empty.

@@ -69,7 +69,13 @@ class TaskDetailAPIView(View):
 
 class TaskRestoreAPIView(View):
     def post(self, request):
-        pass
+        data = json.loads(request.body)
+        task_id = data.get("task_id")
+        user_id = data.get("user_id")
+        real_task = Task.objects.get(pk=task_id, owner=user_id)
+        real_task.status = "ongoing"
+        real_task.save()
+        return JsonResponse( {"success": True} )
 
 
 
