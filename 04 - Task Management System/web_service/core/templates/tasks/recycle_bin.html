@@ -75,7 +75,7 @@ Recycle Bin | Task Tracker
                         <div class="d-flex flex-column justify-content-end align-items-end">
                             <div class="d-flex gap-2">
 
-                                <form method="post" action="">
+                                <form method="post" action="{% url 'core:task_restore' task.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-warning btn-sm">
                                         Restore

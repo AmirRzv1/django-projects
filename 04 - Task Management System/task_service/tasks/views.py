@@ -67,7 +67,9 @@ class TaskDetailAPIView(View):
         except Exception as e:
             return JsonResponse( {"success": False, "error": e})
 
-
+class TaskRestoreAPIView(View):
+    def post(self, request):
+        pass
 
 
 

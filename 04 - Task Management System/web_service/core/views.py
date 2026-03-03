@@ -348,3 +348,15 @@ class RecycleBinView(View):
             messages.warning(request, "Invalid tasks response.")
 
         return render(request, self.class_template, {"tasks": tasks, "task_soft_delete_count": task_soft_delete_count})
+
+class TaskRestore(View):
+    def post(self, request, task_id):
+        response = requests.post("http://127.0.0.1:8000/tasks/task-restore/",
+                                 json={"task_id": task_id},
+                                 timeout=5)
+
+
+
+
+
+
