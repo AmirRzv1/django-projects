@@ -15,7 +15,7 @@ Recycle Bin | Task Tracker
 
                 <!-- Welcome (Top Center) -->
                 <h4 class="card-title text-center mb-4">
-                    Welcome, {{ user.username }}!
+                    Welcome, {{ request.session.username }}!
                 </h4>
 
                 <!-- Bottom Row -->
@@ -25,7 +25,7 @@ Recycle Bin | Task Tracker
                     <div class="text-start">
                         <p class="mb-0">
                             Email: {{ user.email }} <br>
-                            Deleted tasks: {{ tasks.count }}
+                            Deleted tasks: {{ task_soft_delete_count }}
                         </p>
                     </div>
 

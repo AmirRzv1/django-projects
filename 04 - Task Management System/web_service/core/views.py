@@ -211,7 +211,6 @@ class DashboardView(View):
                 user_task_response_result = user_task_response.json()
                 tasks = user_task_response_result.get("tasks")
 
-                print(tasks)
             for task in tasks:
                 if task["status"] != "soft_delete":
                     task_count += 1
@@ -315,8 +314,37 @@ class TaskUpdateView(View):
         form = self.class_form()
         return render(request, self.class_template, {"form": form})
 
+# need improvements, we don't need to take the whole tasks and then
+# filter them.
 class RecycleBinView(View):
     class_template = "tasks/recycle_bin.html"
 
     def get(self, request):
-        return render(request, self.class_template)
+        # user tasks
+        user_id = request.session.get("user_id")
+
+        tasks = []
+        task_soft_delete_count = 0
+
+        try:
+            user_task_response = requests.get("http://127.0.0.1:8000/tasks/tasks/",
+                                              json={"user_id": user_id},
+                                              timeout=5)
+
+            user_task_response.raise_for_status()
+
+            if user_task_response.content:
+                user_task_response_result = user_task_response.json()
+                tasks = user_task_response_result.get("tasks")
+
+            for task in tasks:
+                if task["status"] == "soft_delete":
+                    task_soft_delete_count += 1
+
+        except (RequestException, HTTPError):
+            messages.warning(request, "Tasks service unavailable.")
+
+        except ValueError:
+            messages.warning(request, "Invalid tasks response.")
+
+        return render(request, self.class_template, {"tasks": tasks, "task_soft_delete_count": task_soft_delete_count})
