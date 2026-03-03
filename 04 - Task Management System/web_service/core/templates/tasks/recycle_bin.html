@@ -84,7 +84,7 @@ Recycle Bin | Task Tracker
                                 </form>
 
                                 <!-- Permanent Delete Button -->
-                                <form method="post" action="">
+                                <form method="post" action="{% url 'core:task_hard_delete' task.id %}">
 
                                   {% csrf_token %}
                                   <button class="btn btn-dark btn-sm"

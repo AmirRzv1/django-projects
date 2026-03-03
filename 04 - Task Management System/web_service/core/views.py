@@ -349,7 +349,7 @@ class RecycleBinView(View):
 
         return render(request, self.class_template, {"tasks": tasks, "task_soft_delete_count": task_soft_delete_count})
 
-class TaskRestore(View):
+class TaskRestoreView(View):
     def post(self, request, task_id):
         response = requests.post("http://127.0.0.1:8000/tasks/task-restore/",
                                  json={"task_id": task_id, "user_id": request.session["user_id"]},
@@ -364,6 +364,20 @@ class TaskRestore(View):
         messages.error(request, "Task didn't restored !!")
         return redirect("core:recycle_bin")
 
+class TaskHardDeleteView(View):
+    def post(self, request, task_id):
+        user_id = request.session.get("user_id")
+        response = requests.post("http://127.0.0.1:8000/tasks/task-hard-delete/",
+                                 json={"user_id": user_id, "task_id": task_id},
+                                 timeout=5)
+        response.raise_for_status()
+        result = response.json()
 
+        if result.get("success"):
+            messages.success(request, "Task deleted successfully.")
+            return redirect("core:recycle_bin")
+
+        messages.error(request, "Task delete fail !!")
+        return redirect("core:recycle_bin")
 
 

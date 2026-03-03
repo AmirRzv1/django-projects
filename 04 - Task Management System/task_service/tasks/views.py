@@ -77,6 +77,12 @@ class TaskRestoreAPIView(View):
         real_task.save()
         return JsonResponse( {"success": True} )
 
-
-
-
+# needs error handling
+class TaskHardDeleteAPIView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        task_id = data.get("task_id")
+        user_id = data.get("user_id")
+        task = Task.objects.get(pk=task_id, owner=user_id)
+        task.delete()
+        return JsonResponse( {"success": True} )
