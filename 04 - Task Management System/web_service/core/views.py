@@ -314,3 +314,9 @@ class TaskUpdateView(View):
         # result = response.json()
         form = self.class_form()
         return render(request, self.class_template, {"form": form})
+
+class RecycleBinView(View):
+    class_template = "tasks/recycle_bin.html"
+
+    def get(self, request):
+        return render(request, self.class_template)

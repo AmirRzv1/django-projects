@@ -1,4 +1,4 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 
 {% block title %}
 Recycle Bin | Task Tracker
@@ -31,7 +31,7 @@ Recycle Bin | Task Tracker
 
                     <!-- Right: Back Button -->
                     <div class="text-end">
-                        <a href="{% url 'tasks:task_dashboard' %}"
+                        <a href="{% url 'core:dashboard' %}"
                            class="btn btn-outline-dark btn-sm">
                             ← Back to Dashboard
                         </a>
@@ -75,7 +75,7 @@ Recycle Bin | Task Tracker
                         <div class="d-flex flex-column justify-content-end align-items-end">
                             <div class="d-flex gap-2">
 
-                                <form method="post" action="{% url 'tasks:task_restore' task.id %}" class="d-inline">
+                                <form method="post" action="">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-warning btn-sm">
                                         Restore
@@ -83,7 +83,7 @@ Recycle Bin | Task Tracker
                                 </form>
 
                                 <!-- Permanent Delete Button -->
-                                <form method="post" action="{% url 'tasks:task_permanently_delete' task.id %}">
+                                <form method="post" action="">
 
                                   {% csrf_token %}
                                   <button class="btn btn-dark btn-sm"
