@@ -303,14 +303,17 @@ class TaskUpdateView(View):
     class_form = TaskUpdateForm
 
     def get(self, request, task_id):
-        # # getting real_task to prefill the entries
-        # user_id = request.session.get("user_id")
-        # response = requests.get("http://127.0.0.1:8000/tasks/task-detail/",
-        #                         json={"user_id": user_id,
-        #                                "task_id": task_id},
-        #                         timeout=5)
-        # response.raise_for_status()
-        # result = response.json()
+        # getting real_task to prefill the entries
+        user_id = request.session.get("user_id")
+        response = requests.get("http://127.0.0.1:8000/tasks/task-detail/",
+                                json={"user_id": user_id,
+                                       "task_id": task_id},
+                                timeout=5)
+        print(f"task_id: {task_id}")
+        print(f"user_id : {user_id}")
+        response.raise_for_status()
+        result = response.json()
+        print(result)
         form = self.class_form()
         return render(request, self.class_template, {"form": form})
 

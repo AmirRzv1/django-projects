@@ -60,9 +60,13 @@ class TaskDetailAPIView(View):
         data = json.loads(request.body)
         task_id = data.get("task_id")
         user_id = data.get("user_id")
+
         try:
-            task = Task.objects.filter(pk=task_id, owner=user_id)
-            task = task.first()
+            # tip : JsonResponse cant send the django object because it cant convert it
+            # instead for easy part we can use .values() on our query.
+            task = Task.objects.filter(pk=task_id, owner=user_id).values().first()
+            print(f"filter Task : {task}")
+
             return JsonResponse( {"success": True, "task": task } )
         except Exception as e:
             return JsonResponse( {"success": False, "error": e})
