@@ -309,12 +309,14 @@ class TaskUpdateView(View):
                                 json={"user_id": user_id,
                                        "task_id": task_id},
                                 timeout=5)
-        print(f"task_id: {task_id}")
-        print(f"user_id : {user_id}")
         response.raise_for_status()
         result = response.json()
-        print(result)
-        form = self.class_form()
+        task = result["task"]
+        form = self.class_form(initial={
+            "title": task["title"],
+            "description": task["description"],
+            "status": task["status"]
+        })
         return render(request, self.class_template, {"form": form})
 
 # need improvements, we don't need to take the whole tasks and then
