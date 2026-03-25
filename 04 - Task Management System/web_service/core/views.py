@@ -329,7 +329,7 @@ class TaskUpdateView(View):
             description = data["description"]
             status = data["status"]
 
-            response = requests.post("http://127.0.0.1:8000/task-update/",
+            response = requests.post("http://127.0.0.1:8000/tasks/task-update/",
                                      json={"task_id": task_id,
                                            "user_id": user_id,
                                            "title": title,
@@ -341,6 +341,9 @@ class TaskUpdateView(View):
             if result.get("success"):
                 messages.success(request, "task updated successfully.")
                 return redirect("core:dashboard")
+
+            messages.error(request, "task update error !")
+            return redirect("core:dashboard")
 
 
 
