@@ -64,10 +64,13 @@ Dashboard | Task Tracker
                 </a>
             </div>
 
-            <ul class="list-group list-group-flush">
-                {% for task in tasks %}
-                {# show only the task with ongoing or completed #}
-                {% if task.status == "ongoing" or task.status == "completed" %}
+    <ul class="list-group list-group-flush">
+        {% for task in tasks %}
+
+        {# Dynamic filtering based on sidebar selection #}
+        {% if not request.GET.status %}
+            {# All Tasks - show ongoing and completed #}
+            {% if task.status == "ongoing" or task.status == "completed" %}
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between">
 
@@ -98,6 +101,47 @@ Dashboard | Task Tracker
                                 <a href="{% url 'core:task_update' task.id %}"
                                    class="btn btn-success btn-sm">
                                     Update
+                                </a><form method="post" action="{% url 'core:task_soft_delete' task.id %}">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this task?');">
+                                    Delete
+                                  </button>
+                              </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </li>
+            {% endif %}
+
+        {% elif request.GET.status == "ongoing" %}
+            {# Only ongoing tasks #}
+            {% if task.status == "ongoing" %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+
+                        <!-- Task Info -->
+                        <div>
+                            <p class="mb-1">
+                                <strong>Title:</strong> {{ task.title }}
+                            </p>
+
+                            <p class="mb-1">
+                                <strong>Description:</strong>
+                                {{ task.description|default:"—" }}
+                            </p>
+
+                            <span class="badge bg-primary text-white">
+                                  Status: {{ task.status|title }}
+                            </span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-column justify-content-end align-items-end">
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'core:task_update' task.id %}"
+                                   class="btn btn-success btn-sm">
+                                    Update
                                 </a>
 
                               <form method="post" action="{% url 'core:task_soft_delete' task.id %}">
@@ -111,13 +155,58 @@ Dashboard | Task Tracker
 
                     </div>
                 </li>
-                {% endif %}
-                {% empty %}
-                <li class="list-group-item text-center text-muted">
-                    You have no tasks yet.
+            {% endif %}
+
+        {% elif request.GET.status == "completed" %}
+            {# Only completed tasks #}
+            {% if task.status == "completed" %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+
+                        <!-- Task Info -->
+                        <div>
+                            <p class="mb-1">
+                                <strong>Title:</strong> {{ task.title }}
+                            </p>
+
+                            <p class="mb-1">
+                                <strong>Description:</strong>
+                                {{ task.description|default:"—" }}
+                            </p>
+
+                            <span class="badge bg-success text-white">
+                                  Status: {{ task.status|title }}
+                            </span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-column justify-content-end align-items-end">
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'core:task_update' task.id %}"
+                                   class="btn btn-success btn-sm">
+                                    Update
+                                </a>
+
+                              <form method="post" action="{% url 'core:task_soft_delete' task.id %}">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this task?');">
+                                    Delete
+                                  </button>
+                              </form>
+                            </div>
+                        </div>
+
+                    </div>
                 </li>
-                {% endfor %}
-            </ul>
+            {% endif %}
+        {% endif %}
+
+        {% empty %}
+        <li class="list-group-item text-center text-muted">
+            You have no tasks yet.
+        </li>
+        {% endfor %}
+    </ul>
         </div>
     </div>
 
@@ -130,19 +219,19 @@ Dashboard | Task Tracker
 
             <div class="list-group list-group-flush">
 
-                <a
+                <a href="{% url 'core:dashboard' %}"
                    class="list-group-item list-group-item-action
                    {% if not request.GET.status %}active{% endif %}">
                     All Tasks
                 </a>
 
-                <a
+                <a href="{% url 'core:dashboard' %}?status=ongoing"
                    class="list-group-item list-group-item-action
                    {% if request.GET.status == 'ongoing' %}active{% endif %}">
                     Ongoing
                 </a>
 
-                <a
+                <a href="{% url 'core:dashboard' %}?status=completed"
                    class="list-group-item list-group-item-action
                    {% if request.GET.status == 'completed' %}active{% endif %}">
                     Completed
