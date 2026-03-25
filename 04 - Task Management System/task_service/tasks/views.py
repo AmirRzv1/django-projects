@@ -90,3 +90,7 @@ class TaskHardDeleteAPIView(View):
         task = Task.objects.get(pk=task_id, owner=user_id)
         task.delete()
         return JsonResponse( {"success": True} )
+
+class TaskUpdateAPIView(View):
+    def post(self):
+        pass

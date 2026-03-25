@@ -10,4 +10,5 @@ urlpatterns = [
     path("task-detail/", TaskDetailAPIView.as_view(), name="task_detail"),
     path("task-restore/", TaskRestoreAPIView.as_view(), name="task_restore"),
     path("task-hard-delete/", TaskHardDeleteAPIView.as_view(), name="task_hard_delete"),
+    path("task-update/", TaskUpdateAPIView.as_view(), name="task_update"),
 ]

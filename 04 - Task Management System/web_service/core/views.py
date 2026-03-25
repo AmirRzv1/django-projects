@@ -319,6 +319,31 @@ class TaskUpdateView(View):
         })
         return render(request, self.class_template, {"form": form})
 
+    def post(self, request, task_id):
+        form = self.class_form(request.POST)
+        user_id = request.session.get("user_id")
+
+        if form.is_valid():
+            data = form.cleaned_data
+            title = data["title"]
+            description = data["description"]
+            status = data["status"]
+
+            response = requests.post("http://127.0.0.1:8000/task-update/",
+                                     json={"task_id": task_id,
+                                           "user_id": user_id,
+                                           "title": title,
+                                           "description": description,
+                                           "status": status},
+                                     timeout=5)
+            response.raise_for_status()
+            result = response.json()
+            if result.get("success"):
+                messages.success(request, "task updated successfully.")
+                return redirect("core:dashboard")
+
+
+
 # need improvements, we don't need to take the whole tasks and then
 # filter them.
 class RecycleBinView(View):
