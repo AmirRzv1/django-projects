@@ -14,3 +14,12 @@ Focus: Enhancing user authentication and security flows.
 - Email-based password reset flow.
 - Improved form validation and error handling.
 - Access control hardening (ownership checks on all task actions).
+
+V 2.0.0 - Improvements:
+Focus: Move from Monolith design to Microservice
+
+- 3 different service for the project
+- task_service for related works for tasks
+- user_service for related works for users
+- web_service illuminate the real front end with templates and html+css files
+- shared db(Postgresql) and inner http calls with request library

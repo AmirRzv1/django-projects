@@ -345,8 +345,6 @@ class TaskUpdateView(View):
             messages.error(request, "task update error !")
             return redirect("core:dashboard")
 
-
-
 # need improvements, we don't need to take the whole tasks and then
 # filter them.
 class RecycleBinView(View):

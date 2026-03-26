@@ -1,85 +1,107 @@
-# 📨 Task Management System (Version 1.2.0)
+# 📨 Task Management System (Version 2.0.0)
 
-A simple yet well-structured **Task Management web application** built with **Django**.  
-The project focuses on implementing **full CRUD operations** (Create, Read, Update, Delete) for tasks, along with **user authentication** features such as **register, login, and logout**.
+A **microservices-based Task Management web application** built with **Django**.  
+This project demonstrates the transition from a **monolithic architecture** to a **microservices architecture**, implementing **full CRUD operations** for tasks with **user authentication** across distributed services.
 
-The UI is intentionally kept **clean, simple, and minimal**, using **HTML, Bootstrap, a bit of CSS, and light JavaScript**, to emphasize **backend logic, Django architecture, and best practices** rather than heavy frontend design.
+The UI remains **clean, simple, and minimal** using **HTML, Bootstrap, CSS, and light JavaScript**, while the focus shifts to **microservices design patterns, inter-service communication, and distributed system architecture**.
 
-This project represents **Version 1**, serving as a solid foundation for learning and applying real-world Django concepts in a practical, organized way.
+This is **Version 2**, representing a significant architectural evolution from the monolithic Version 1, showcasing real-world microservices concepts and Django best practices.
+
+---
+
+## 🏗️ Architecture Overview
+
+The application is split into **three independent services**:
+
+### 1. **User Service** (Authentication Service)
+- Handles user registration, login, and logout
+- Manages user data and authentication
+- Exposes REST endpoints for user operations
+- Independent service responsible for all user-related logic
+
+### 2. **Task Service** (Task Management Service)
+- Manages all task CRUD operations
+- Handles task status transitions (ongoing, completed, soft_delete)
+- Exposes REST endpoints for task operations
+- Stores task data with user ownership references
+
+### 3. **Web Service** (Frontend/Gateway Service)
+- Serves the user interface (HTML templates)
+- Acts as the entry point for user requests
+- Communicates with User Service and Task Service via HTTP
+- Aggregates data from backend services for the frontend
+
+### Communication Pattern
+- **Inter-service communication**: HTTP requests using Python's `requests` library
+- **Shared Database**: All services connect to a single PostgreSQL database (Version 2 design choice)
+- **Synchronous calls**: Services communicate directly via REST endpoints
 
 ---
 
 ## 🚀 Features
 
-- User authentication system:
-  - User registration.
-  - Login and logout functionality.
-- Task management (CRUD):
-  - Create new tasks.
-  - View task list (dashboard).
-  - Update existing tasks.
-  - Delete tasks with confirmation.
-- Tasks are user-specific (each user sees only their own tasks).
-- Task fields include:
-  - Title
-  - Description
-  - Status (ongoing, done, deleted)
-- Clean dashboard UI for managing tasks.
-- Minimal JavaScript for user interactions (confirmation dialogs).
-- Bootstrap-based responsive layout.
-- Versioned project structure using a `VERSION` file.
+### User Management
+- User registration with validation
+- Login and logout functionality
+- Session-based authentication
+- User-specific data isolation
+
+### Task Management (CRUD)
+- Create new tasks with title and description
+- View task list on dashboard (user-specific)
+- Update existing tasks
+- Soft delete (mark as deleted, recoverable)
+- Hard delete (permanent removal)
+- Restore soft-deleted tasks
+- Task status management: ongoing, completed, soft_delete
+
+### Microservices Features
+- Service separation by domain (users, tasks, web interface)
+- Independent service deployment capability
+- HTTP-based inter-service communication
+- Centralized database with service-specific tables
 
 ---
 
-## 🛠️ Technologies & Best Practices
+## 🛠️ Technologies & Architecture Patterns
 
-This project demonstrates **core Django concepts** and **professional development practices**:
+### Microservices Architecture
+- **Service decomposition** by business capability
+- **Shared database pattern** (single PostgreSQL instance)
+- **API-based communication** between services
+- Each service runs independently on different ports
 
-### App Structure
-- Standard Django project and app structure.
-- Clear separation of concerns:
-  - `models.py` for data structure.
-  - `views.py` for request handling.
-  - `forms.py` for form logic.
-  - `urls.py` for routing.
-- Each app manages its own responsibility.
+### Inter-Service Communication
+- **HTTP/REST** for synchronous communication
+- Python `requests` library for service-to-service calls
+- JSON data exchange format
+- Error handling for network failures
 
-### Views
-- **Class-Based Views (CBV)** used intentionally for clarity and scalability.
-- Proper use of `get()` and `post()` methods.
-- Secure object retrieval based on logged-in user.
-- Clear separation between create, update, delete, and list views.
+### Database Design
+- **PostgreSQL** as the shared database
+- Service-specific models and tables
+- Foreign key relationships using user IDs
+- Task ownership tracked via `owner` field
 
-### Forms
-- Usage of **Django Forms** and **ModelForms**.
-- Form validation handled server-side.
-- Reusable and clean form definitions.
-- Pre-filled forms for update operations using `instance`.
+### Django Best Practices
+- **Class-Based Views (CBV)** for clean, reusable code
+- **Django Forms** and **ModelForms** for validation
+- **Authentication system** integrated across services
+- **URL namespacing** for organized routing
+- **Template inheritance** for consistent UI
 
-### Authentication & Authorization
-- Built on Django’s authentication system.
-- Login-required access for task-related views.
-- Tasks linked to users using foreign keys.
-- Secure handling of user-owned data.
+### Service Structure
+Each service follows standard Django structure:
+- `models.py` - Data models
+- `views.py` - Request handlers (API endpoints or template views)
+- `urls.py` - URL routing
+- `settings.py` - Service-specific configuration
 
-### URLs & Routing
-- Clean and readable URL patterns.
-- **Namespaced URLs** for better organization.
-- Dynamic URL parameters for task operations.
-- Consistent URL design across the project.
-
-### Templates & UI
-- Simple and readable HTML templates.
-- Minimal logic inside templates.
-- Bootstrap used for layout and styling.
-- Clear user feedback with messages framework.
-- Buttons and actions placed intuitively in the UI.
-
-### JavaScript Integration
-- JavaScript used only where necessary.
-- Simple confirmation dialog before deleting tasks.
-- No heavy frontend frameworks — focus stays on Django.
-
+### Frontend
+- Bootstrap-based responsive design
+- Minimal JavaScript for interactions
+- Server-side rendering with Django templates
+- Clean separation between presentation and logic
 
 ---
 ## 📌 Planned Versions & Future Improvements
