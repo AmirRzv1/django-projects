@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views import View
 from .models import Task
 
-# Create your views here.
+# ✓ Fixed | tip : (get method cant have the request body - it should have the data from url or parameters)
 class UserTasksGetAPIView(View):
     def get(self, request):
         try:
@@ -25,21 +25,65 @@ class UserTasksGetAPIView(View):
             },
             status=200)
 
+# ✓ Fixed
 class UserTaskCreateAPIView(View):
     def post(self, request):
-        data = json.loads(request.body)
+        # Parse JSON with error handling
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format"},
+                status=400
+            )
+
+        # Extract fields
         user_id = data.get("user_id")
         title = data.get("title")
-        description = data.get("description")
+        description = data.get("description", "")  # Optional field with default
+
+        # Validate required fields exist
+        if not user_id:
+            return JsonResponse(
+                {"success": False, "error": "user_id is required"},
+                status=400
+            )
+
+        if not title:
+            return JsonResponse(
+                {"success": False, "error": "title is required"},
+                status=400
+            )
+
+        # Validate user_id is a valid integer
         try:
-            Task.objects.create(owner=user_id, title=title, description=description)
-            return JsonResponse({
-                "success": True,
-            })
-        except Exception:
-            return JsonResponse( {
-                "success": False
-            } )
+            user_id = int(user_id)
+        except (ValueError, TypeError):
+            return JsonResponse(
+                {"success": False, "error": "user_id must be a valid integer"},
+                status=400
+            )
+
+        # Create task
+        try:
+            Task.objects.create(
+                owner=user_id,
+                title=title,
+                description=description
+            )
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "Task created successfully"
+                },
+                status=201
+            )
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "error": f"Failed to create task | {e}"},
+                status=500
+            )
+
 
 # need adjustment
 class TaskSoftDeleteAPIView(View):
