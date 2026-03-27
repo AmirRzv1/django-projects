@@ -121,21 +121,40 @@ class TaskSoftDeleteAPIView(View):
             status=200
         )
 
+# ✓ Fixed
 class TaskDetailAPIView(View):
     def get(self, request):
-        data = json.loads(request.body)
+        # Handle JSON parsing errors
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format"},
+                status=400
+            )
+
         task_id = data.get("task_id")
         user_id = data.get("user_id")
+        # Validate required parameters
+        if not task_id:
+            return JsonResponse(
+                {"success": False, "error": "task_id is required"},
+                status=400
+            )
+
+        if not user_id:
+            return JsonResponse(
+                {"success": False, "error": "user_id is required"},
+                status=400
+            )
 
         try:
             # tip : JsonResponse cant send the django object because it cant convert it
             # instead for easy part we can use .values() on our query.
             task = Task.objects.filter(pk=task_id, owner=user_id).values().first()
-            print(f"filter Task : {task}")
-
             return JsonResponse( {"success": True, "task": task } )
         except Exception as e:
-            return JsonResponse( {"success": False, "error": e})
+            return JsonResponse( {"success": False, "error": str(e)})
 
 class TaskRestoreAPIView(View):
     def post(self, request):
