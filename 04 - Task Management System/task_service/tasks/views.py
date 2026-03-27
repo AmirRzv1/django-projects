@@ -261,7 +261,7 @@ class TaskHardDeleteAPIView(View):
             status=200
         )
 
-
+# ✓ Fixed
 class TaskUpdateAPIView(View):
     def post(self, request):
         # Handle JSON parsing errors

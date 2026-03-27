@@ -9,6 +9,7 @@ from django.db import IntegrityError, DatabaseError
 # because im using it as only internall api calling it doesnt render
 # anything so isntead of didsable the csrf for each view i disable it globally
 
+# ✓ Fixed
 class UserLoginAPIView(View):
     # check that if the user is sending the username or email
     # based on that we return the related information
@@ -64,20 +65,7 @@ class UserLoginAPIView(View):
                 status=500
                     )
 
-# class UserLogoutAPIView(View):
-#     def post(self, request):
-#         try:
-#             data = json.loads(request.body)
-#         except json.JSONDecodeError:
-#             return JsonResponse( {"success": False, "error": "Invalid Request Body !"}, status=400 )
-#
-#         user_id = data.get("user_id")
-#         if not user_id:
-#             return JsonResponse({"success": False, "error": "No user exists."}, status=400)
-#
-#         request.session.flush()
-#         return JsonResponse( {"success": True})
-
+# ✓ Fixed
 class UserRegisterAPIView(View):
     def post(self, request):
 
@@ -130,6 +118,7 @@ class UserRegisterAPIView(View):
             status=201
         )
 
+# ✓ Fixed
 class UserInformationAPIView(View):
     def get(self, request):
         data = json.loads(request.body)
@@ -137,7 +126,16 @@ class UserInformationAPIView(View):
         if not data:
             return JsonResponse({"success": False, "msg": "Empty request."})
 
-        user = User.objects.get(pk=data["user_id"])
+
+        # Handle user not found
+        try:
+            user = User.objects.get(pk = data["user_id"])
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "error": "User not found"},
+                status=404
+            )
+
         return JsonResponse({"success": True,
                              "username": user.username,
                              "email": user.email})
