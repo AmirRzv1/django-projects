@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.http import HttpResponseServerError
 
+# ✓ Fixed
 class HomeView(View):
     def get(self, request):
         # just show the landing page so simple.
@@ -21,6 +22,7 @@ class HomeView(View):
         except Exception as e:
             return HttpResponseServerError(f"Unexpected error: {str(e)}")
 
+# ✓ Fixed
 class UserLoginView(View):
     form_class = UserLoginForm
     template_name = "accounts/login.html"
@@ -88,6 +90,7 @@ class UserLoginView(View):
                 msg = response_result.get("error", "Invalid credentials")
                 return self.handle_template_and_error(request, msg, form)
 
+# ✓ Fixed
 class UserLogoutView(View):
     def post(self, request):
         if not request.session.get("user_id"):
@@ -99,6 +102,7 @@ class UserLogoutView(View):
         messages.success(request, "User successfully logged out.")
         return redirect("core:home")
 
+# ✓ Fixed
 class UserRegisterView(View):
     form_class = UserRegisterForm
 
@@ -168,6 +172,7 @@ class UserRegisterView(View):
 
         return redirect("core:home")
 
+# ✓ Fixed
 class DashboardView(View):
 
     def get(self, request):
@@ -223,6 +228,7 @@ class DashboardView(View):
 
         return render(request, "tasks/dashboard.html", {"tasks": tasks, "task_count": task_count})
 
+# ✓ Fixed
 class UserTaskCreateView(View):
     form_class = TasksCreateForm
     template_class = "tasks/task_create.html"
@@ -283,20 +289,53 @@ class UserTaskCreateView(View):
         msg = response_result.get("error", "Task creation failed.")
         return self.handle_template_and_error(request, msg, form)
 
+# ✓ Fixed
 class TaskSoftDelete(View):
 
     def post(self, request, task_id):
-        response = requests.post("http://127.0.0.1:8000/tasks/task-soft-delete/",
-                                 json={"task_id": task_id},
-                                 timeout=5)
-        response.raise_for_status()
-        result = response.json()
-        if result.get("success"):
-            messages.success(request, "Task soft deleted.")
+
+        try:
+            response = requests.post("http://127.0.0.1:8000/tasks/task-soft-delete/",
+                                     json={"task_id": task_id},
+                                     timeout=5)
+            response.raise_for_status()
+            try:
+                result = response.json()
+            except ValueError:
+                messages.error(request, "Invalid response from server")
+                return redirect("core:dashboard")
+
+            if result.get("success"):
+                messages.success(request, "Task soft deleted")
+                return redirect("core:dashboard")
+
+            # Show specific error from backend
+            error_msg = result.get("error", "Failed to soft delete task")
+            messages.error(request, error_msg)
             return redirect("core:dashboard")
 
-        messages.error(request, "Task didn't soft deleted.")
-        return redirect("core:dashboard")
+        # Handle network/timeout errors
+        except requests.exceptions.Timeout:
+            messages.error(request, "Request timeout. Please try again")
+            return redirect("core:dashboard")
+
+        except requests.exceptions.ConnectionError:
+            messages.error(request, "Cannot connect to task service")
+            return redirect("core:dashboard")
+
+        # Handle HTTP errors (400, 404, 500)
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                messages.error(request, "Task not found")
+            elif e.response.status_code == 400:
+                messages.error(request, "Invalid request")
+            else:
+                messages.error(request, "Server error. Please try again")
+            return redirect("core:dashboard")
+
+        except Exception:
+            messages.error(request, "An unexpected error occurred")
+            return redirect("core:dashboard")
 
 class TaskUpdateView(View):
     class_template = "tasks/task_update.html"
