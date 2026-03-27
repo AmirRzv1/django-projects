@@ -261,22 +261,67 @@ class TaskHardDeleteAPIView(View):
             status=200
         )
 
+
 class TaskUpdateAPIView(View):
     def post(self, request):
-        data = json.loads(request.body)
+        # Handle JSON parsing errors
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format"},
+                status=400
+            )
+
+        # Validate required fields
         task_id = data.get("task_id")
         user_id = data.get("user_id")
-        title = data.get("title")
-        description = data.get("description")
-        status = data.get("status")
 
-        task = Task.objects.get(pk=task_id, owner=user_id)
+        if not task_id:
+            return JsonResponse(
+                {"success": False, "error": "task_id is required"},
+                status=400
+            )
+
+        if not user_id:
+            return JsonResponse(
+                {"success": False, "error": "user_id is required"},
+                status=400
+            )
+
+        # Handle task not found or access denied
+        try:
+            task = Task.objects.get(pk=task_id, owner=user_id)
+        except Task.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "error": "Task not found or access denied"},
+                status=404
+            )
+
+        # Check if task is soft-deleted
+        if task.status == "soft_delete":
+            return JsonResponse(
+                {"success": False, "error": "Cannot update deleted task"},
+                status=400
+            )
+
+        # Only update fields that are provided (partial update)
+        title = data.get("title")
         task.title = title
+
+        description = data.get("description")
         task.description = description
+
+        status = data.get("status")
         task.status = status
+
         task.save()
 
-        return JsonResponse({"success": True})
+        return JsonResponse(
+            {"success": True, "message": "Task updated successfully"},
+            status=200
+        )
+
 
 
 
