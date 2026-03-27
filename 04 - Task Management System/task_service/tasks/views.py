@@ -209,16 +209,57 @@ class TaskRestoreAPIView(View):
             status=200
         )
 
-
-# needs error handling
+# ✓ Fixed
 class TaskHardDeleteAPIView(View):
     def post(self, request):
-        data = json.loads(request.body)
+        # Handle JSON parsing errors
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format"},
+                status=400
+            )
+
+        # Validate required fields
         task_id = data.get("task_id")
         user_id = data.get("user_id")
-        task = Task.objects.get(pk=task_id, owner=user_id)
+
+        if not task_id:
+            return JsonResponse(
+                {"success": False, "error": "task_id is required"},
+                status=400
+            )
+
+        if not user_id:
+            return JsonResponse(
+                {"success": False, "error": "user_id is required"},
+                status=400
+            )
+
+        # Handle task not found or access denied
+        try:
+            task = Task.objects.get(pk=task_id, owner=user_id)
+        except Task.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "error": "Task not found or access denied"},
+                status=404
+            )
+
+        # Safety check: only hard-delete if already soft-deleted
+        if task.status != "soft_delete":
+            return JsonResponse(
+                {"success": False, "error": "Task must be soft-deleted first"},
+                status=400
+            )
+
+        # Perform hard delete
         task.delete()
-        return JsonResponse( {"success": True} )
+
+        return JsonResponse(
+            {"success": True, "message": "Task permanently deleted"},
+            status=200
+        )
 
 class TaskUpdateAPIView(View):
     def post(self, request):
