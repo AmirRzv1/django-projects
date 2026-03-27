@@ -84,20 +84,42 @@ class UserTaskCreateAPIView(View):
                 status=500
             )
 
-
-# need adjustment
+# ✓ Fixed
 class TaskSoftDeleteAPIView(View):
-
     def post(self, request):
-        data = json.loads(request.body)
-        if not data:
-            return JsonResponse( {"success": False, "error": "Empty data !"} )
+        # Handle JSON parsing errors
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format"},
+                status=400
+            )
 
+        # Validate task_id exists in request
         task_id = data.get("task_id")
-        real_task = Task.objects.get(pk=task_id)
+        if not task_id:
+            return JsonResponse(
+                {"success": False, "error": "task_id is required"},
+                status=400
+            )
+
+        # Handle task not found
+        try:
+            real_task = Task.objects.get(pk=task_id)
+        except Task.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "error": "Task not found"},
+                status=404
+            )
+
+        # ✓ Perform soft delete
         real_task.status = "soft_delete"
         real_task.save()
-        return JsonResponse( {"success": True, } )
+        return JsonResponse(
+            {"success": True, "message": "Task soft-deleted successfully"},
+            status=200
+        )
 
 class TaskDetailAPIView(View):
     def get(self, request):
