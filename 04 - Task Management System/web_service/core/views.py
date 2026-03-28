@@ -337,6 +337,7 @@ class TaskSoftDelete(View):
             messages.error(request, "An unexpected error occurred")
             return redirect("core:dashboard")
 
+# ✓ Fixed
 class TaskUpdateView(View):
     class_template = "tasks/task_update.html"
     class_form = TaskUpdateForm
@@ -344,19 +345,54 @@ class TaskUpdateView(View):
     def get(self, request, task_id):
         # getting real_task to prefill the entries
         user_id = request.session.get("user_id")
-        response = requests.get("http://127.0.0.1:8000/tasks/task-detail/",
-                                json={"user_id": user_id,
-                                       "task_id": task_id},
-                                timeout=5)
-        response.raise_for_status()
-        result = response.json()
-        task = result["task"]
-        form = self.class_form(initial={
-            "title": task["title"],
-            "description": task["description"],
-            "status": task["status"]
-        })
-        return render(request, self.class_template, {"form": form})
+
+        try:
+            # Use query parameters for GET (REST standard)
+            response = requests.get(
+                "http://127.0.0.1:8000/tasks/task-detail/",
+                params={"user_id": user_id, "task_id": task_id},
+                timeout=5
+            )
+            response.raise_for_status()
+
+            # Handle JSON parsing
+            try:
+                result = response.json()
+            except ValueError:
+                messages.error(request, "Invalid response from server")
+                return redirect("core:dashboard")
+
+            # Check if task exists
+            task = result.get("task")
+            if not task:
+                messages.error(request, "Task not found")
+                return redirect("core:dashboard")
+
+            form = self.class_form(initial={
+                "title": task["title"],
+                "description": task["description"],
+                "status": task["status"]
+            })
+            return render(request, self.class_template, {"form": form})
+
+        except requests.exceptions.Timeout:
+            messages.error(request, "Request timeout. Please try again")
+            return redirect("core:dashboard")
+
+        except requests.exceptions.ConnectionError:
+            messages.error(request, "Cannot connect to task service")
+            return redirect("core:dashboard")
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                messages.error(request, "Task not found")
+            else:
+                messages.error(request, "Server error. Please try again")
+            return redirect("core:dashboard")
+
+        except Exception:
+            messages.error(request, "An unexpected error occurred")
+            return redirect("core:dashboard")
 
     def post(self, request, task_id):
         form = self.class_form(request.POST)
@@ -364,25 +400,60 @@ class TaskUpdateView(View):
 
         if form.is_valid():
             data = form.cleaned_data
-            title = data["title"]
-            description = data["description"]
-            status = data["status"]
+            try:
+                response = requests.post(
+                    "http://127.0.0.1:8000/tasks/task-update/",
+                    json={
+                        "task_id": task_id,
+                        "user_id": user_id,
+                        "title": data["title"],
+                        "description": data["description"],
+                        "status": data["status"]
+                    },
+                    timeout=5
+                )
+                response.raise_for_status()
 
-            response = requests.post("http://127.0.0.1:8000/tasks/task-update/",
-                                     json={"task_id": task_id,
-                                           "user_id": user_id,
-                                           "title": title,
-                                           "description": description,
-                                           "status": status},
-                                     timeout=5)
-            response.raise_for_status()
-            result = response.json()
-            if result.get("success"):
-                messages.success(request, "task updated successfully.")
-                return redirect("core:dashboard")
+                # Handle JSON parsing
+                try:
+                    result = response.json()
+                except ValueError:
+                    messages.error(request, "Invalid response from server")
+                    return render(request, self.class_template, {"form": form})
 
-            messages.error(request, "task update error !")
-            return redirect("core:dashboard")
+                if result.get("success"):
+                    messages.success(request, "Task updated successfully")
+                    return redirect("core:dashboard")
+
+                # Show specific error from backend
+                error_msg = result.get("error", "Failed to update task")
+                messages.error(request, error_msg)
+                return render(request, self.class_template, {"form": form})
+
+            except requests.exceptions.Timeout:
+                messages.error(request, "Request timeout. Please try again")
+                return render(request, self.class_template, {"form": form})
+
+            except requests.exceptions.ConnectionError:
+                messages.error(request, "Cannot connect to task service")
+                return render(request, self.class_template, {"form": form})
+
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 404:
+                    messages.error(request, "Task not found")
+                elif e.response.status_code == 400:
+                    messages.error(request, "Invalid request")
+                else:
+                    messages.error(request, "Server error. Please try again")
+                return render(request, self.class_template, {"form": form})
+
+            except Exception:
+                messages.error(request, "An unexpected error occurred")
+                return render(request, self.class_template, {"form": form})
+
+        # ✓ Handle invalid form
+        messages.error(request, "Please correct the errors below")
+        return render(request, self.class_template, {"form": form})
 
 # need improvements, we don't need to take the whole tasks and then
 # filter them.
