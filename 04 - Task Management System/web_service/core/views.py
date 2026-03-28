@@ -490,35 +490,95 @@ class RecycleBinView(View):
 
         return render(request, self.class_template, {"tasks": tasks, "task_soft_delete_count": task_soft_delete_count})
 
+# ✓ Fixed
 class TaskRestoreView(View):
     def post(self, request, task_id):
-        response = requests.post("http://127.0.0.1:8000/tasks/task-restore/",
-                                 json={"task_id": task_id, "user_id": request.session["user_id"]},
-                                 timeout=5)
-        response.raise_for_status()
-        result = response.json()
+        try:
+            response = requests.post("http://127.0.0.1:8000/tasks/task-restore/",
+                                     json={"task_id": task_id, "user_id": request.session["user_id"]},
+                                     timeout=5)
+            response.raise_for_status()
+            # Handle JSON parsing
+            try:
+                result = response.json()
+            except ValueError:
+                messages.error(request, "Invalid response from server")
+                return redirect("core:recycle_bin")
 
-        if result.get("success"):
-            messages.success(request, "Task restored successfully.")
+            if result.get("success"):
+                messages.success(request, "Task restored successfully")
+                return redirect("core:recycle_bin")
+
+            # Show specific error from backend
+            error_msg = result.get("error", "Failed to restore task")
+            messages.error(request, error_msg)
             return redirect("core:recycle_bin")
 
-        messages.error(request, "Task didn't restored !!")
-        return redirect("core:recycle_bin")
+        except requests.exceptions.Timeout:
+            messages.error(request, "Request timeout. Please try again")
+            return redirect("core:recycle_bin")
 
+        except requests.exceptions.ConnectionError:
+            messages.error(request, "Cannot connect to task service")
+            return redirect("core:recycle_bin")
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                messages.error(request, "Task not found")
+            elif e.response.status_code == 400:
+                messages.error(request, "Invalid request")
+            else:
+                messages.error(request, "Server error. Please try again")
+            return redirect("core:recycle_bin")
+
+        except Exception:
+            messages.error(request, "An unexpected error occurred")
+            return redirect("core:recycle_bin")
+
+# ✓ Fixed
 class TaskHardDeleteView(View):
     def post(self, request, task_id):
         user_id = request.session.get("user_id")
-        response = requests.post("http://127.0.0.1:8000/tasks/task-hard-delete/",
-                                 json={"user_id": user_id, "task_id": task_id},
-                                 timeout=5)
-        response.raise_for_status()
-        result = response.json()
+        try:
+            response = requests.post("http://127.0.0.1:8000/tasks/task-hard-delete/",
+                                     json={"user_id": user_id, "task_id": task_id},
+                                     timeout=5)
+            response.raise_for_status()
+            # Handle JSON parsing
+            try:
+                result = response.json()
+            except ValueError:
+                messages.error(request, "Invalid response from server")
+                return redirect("core:recycle_bin")
 
-        if result.get("success"):
-            messages.success(request, "Task deleted successfully.")
+            if result.get("success"):
+                messages.success(request, "Task deleted permanently")
+                return redirect("core:recycle_bin")
+
+            # Show specific error from backend
+            error_msg = result.get("error", "Failed to delete task")
+            messages.error(request, error_msg)
             return redirect("core:recycle_bin")
 
-        messages.error(request, "Task delete fail !!")
-        return redirect("core:recycle_bin")
+        except requests.exceptions.Timeout:
+            messages.error(request, "Request timeout. Please try again")
+            return redirect("core:recycle_bin")
+
+        except requests.exceptions.ConnectionError:
+            messages.error(request, "Cannot connect to task service")
+            return redirect("core:recycle_bin")
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                messages.error(request, "Task not found")
+            elif e.response.status_code == 400:
+                messages.error(request, "Invalid request")
+            else:
+                messages.error(request, "Server error. Please try again")
+            return redirect("core:recycle_bin")
+
+        except Exception:
+            messages.error(request, "An unexpected error occurred")
+            return redirect("core:recycle_bin")
 
 
