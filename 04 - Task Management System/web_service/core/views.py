@@ -350,7 +350,7 @@ class TaskUpdateView(View):
             # Use query parameters for GET (REST standard)
             response = requests.get(
                 "http://127.0.0.1:8000/tasks/task-detail/",
-                params={"user_id": user_id, "task_id": task_id},
+                json={"user_id": user_id, "task_id": task_id},
                 timeout=5
             )
             response.raise_for_status()

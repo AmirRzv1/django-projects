@@ -154,6 +154,7 @@ class TaskDetailAPIView(View):
             task = Task.objects.filter(pk=task_id, owner=user_id).values().first()
             return JsonResponse( {"success": True, "task": task } )
         except Exception as e:
+            print(e)
             return JsonResponse( {"success": False, "error": str(e)})
 
 # ✓ Fixed
@@ -307,12 +308,11 @@ class TaskUpdateAPIView(View):
 
         # Only update fields that are provided (partial update)
         title = data.get("title")
-        task.title = title
-
         description = data.get("description")
-        task.description = description
-
         status = data.get("status")
+
+        task.title = title
+        task.description = description
         task.status = status
 
         task.save()
