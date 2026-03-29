@@ -1,0 +1,10 @@
+1| auto testing and testing it self
+2| logging
+3| api doc with swagger and openapi
+
+
+map :
+1| DRF
+2| Celery + Redis
+3| Docker + Postgresql
+4| Real Microservice
