@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.http import HttpResponseServerError
 
-# ✓ Fixed
+# ✓ Fixed | No changes for DRF
 class HomeView(View):
     def get(self, request):
         # just show the landing page so simple.
@@ -80,9 +80,12 @@ class UserLoginView(View):
                 return self.handle_template_and_error(request, msg, form)
 
             if response_result.get("success"):
+                request.session["access_token"] = response_result["access"]
+                request.session["refresh_token"] = response_result["refresh"]
                 request.session["user_id"] = response_result["user_id"]
                 request.session["username"] = response_result["username"]
                 request.session["user_is_authenticated"] = True
+
                 messages.success(request, "User successfully logged in.")
                 return redirect("core:home")
 
