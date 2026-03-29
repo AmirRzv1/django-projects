@@ -24,6 +24,10 @@ class HomeView(View):
 
 # ✓ Fixed
 class UserLoginView(View):
+    """
+    Take the essential information from the user and send them to the
+    user_service to be authenticated and save the credentials in the session.
+    """
     form_class = UserLoginForm
     template_name = "accounts/login.html"
 
@@ -79,6 +83,7 @@ class UserLoginView(View):
                 msg = f"Unexpected error: {str(e)}"
                 return self.handle_template_and_error(request, msg, form)
 
+            # Add information to the session.
             if response_result.get("success"):
                 request.session["access_token"] = response_result["access"]
                 request.session["refresh_token"] = response_result["refresh"]
