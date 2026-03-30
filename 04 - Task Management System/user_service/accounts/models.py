@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 
-class CostumeUserManager(BaseUserManager):
+class CustomUserManager(BaseUserManager):
     def create_user(self, username, password, email=None):
         if not username:
             raise ValueError("Username is required.")
@@ -10,7 +10,7 @@ class CostumeUserManager(BaseUserManager):
 
         user = self.model(username=username.lower())
         if email:
-            user.email = self.normalize_email()
+            user.email = self.normalize_email(email)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -22,14 +22,14 @@ class CostumeUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-class CostumeUser(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
 
-    objects = CostumeUserManager()
+    objects = CustomUserManager()
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
