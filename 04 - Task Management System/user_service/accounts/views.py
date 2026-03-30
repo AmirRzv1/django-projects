@@ -73,7 +73,7 @@ class UserLoginAPIView(View):
                 status=500
                     )
 
-# ✓ Fixed
+# ✓ Converted to DRF
 class UserRegisterAPIView(APIView):
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)

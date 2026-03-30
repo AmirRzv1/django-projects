@@ -131,7 +131,22 @@ class UserRegisterView(View):
             # Try to extract error message from service
             try:
                 error_data = response.json()
-                return False, error_data.get("error", "Registration failed.")
+
+                if "errors" in error_data:
+                    errors = error_data["errors"]
+                else:
+                    errors = error_data
+
+                # Convert to user-friendly message
+                error_messages = []
+                for field, messages_list in errors.items():
+                    if field == "non_field_errors":
+                        error_messages.extend(messages_list)
+                    else:
+                        error_messages.append(f"{field}: {', '.join(messages_list)}")
+
+                return False, " | ".join(error_messages)
+
             except ValueError:
                 return False, f"Service error. Status code: {response.status_code}"
 
