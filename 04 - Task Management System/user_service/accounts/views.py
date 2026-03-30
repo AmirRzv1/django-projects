@@ -1,9 +1,17 @@
 import json
+
+# Django
 from django.http import JsonResponse
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db import IntegrityError, DatabaseError
+
+# DRF
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import *
 
 # just disable the csrf for whole views in the project to pass it
 # because im using it as only internall api calling it doesnt render
@@ -66,56 +74,20 @@ class UserLoginAPIView(View):
                     )
 
 # ✓ Fixed
-class UserRegisterAPIView(View):
+class UserRegisterAPIView(APIView):
     def post(self, request):
+        serializer = UserRegisterSerializer(data=request.data)
 
-        # Handle invalid JSON
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {"success": False, "error": "Invalid JSON."},
-                status=400
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"success": True, "message": "User created successfully.",},
+                status=status.HTTP_201_CREATED
             )
 
-        if not data:
-            return JsonResponse(
-                {"success": False, "error": "Data is empty."},
-                status=400
-            )
-
-        username = data.get("username")
-        email = data.get("email")
-        password = data.get("password")
-
-        # Validate required fields
-        if not all([username, email, password]):
-            return JsonResponse(
-                {"success": False, "error": "All fields are required."},
-                status=400
-            )
-
-        # Try to create user
-        try:
-            User.objects.create_user(
-                username=username,
-                email=email,
-                password=password
-            )
-        except IntegrityError:
-            return JsonResponse(
-                {"success": False, "error": "Username already exists."},
-                status=400
-            )
-        except DatabaseError:
-            return JsonResponse(
-                {"success": False, "error": "Database error."},
-                status=500
-            )
-
-        return JsonResponse(
-            {"success": True},
-            status=201
+        return Response(
+            {"success": False, "error": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
 # ✓ Fixed
