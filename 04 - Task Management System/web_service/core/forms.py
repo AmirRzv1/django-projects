@@ -6,8 +6,8 @@ class UserLoginForm(forms.Form):
 
 class UserRegisterForm(forms.Form):
     username = forms.CharField()
-    email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
+    email = forms.EmailField(required=False)
 
 class TasksCreateForm(forms.Form):
     title = forms.CharField()
