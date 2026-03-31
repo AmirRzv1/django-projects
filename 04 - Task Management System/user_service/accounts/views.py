@@ -21,7 +21,7 @@ from .serializers import *
 # because im using it as only internall api calling it doesnt render
 # anything so isntead of didsable the csrf for each view i disable it globally
 
-# ✓ Fixed
+# ✓ DRF Applied
 class UserLoginAPIView(APIView):
     """
     use the credentials to validate the user by email or username
@@ -32,7 +32,7 @@ class UserLoginAPIView(APIView):
 
     def post(self, request):
         # validate the data
-        serializer = UserRegisterSerializer(data=request.data)
+        serializer = UserLoginSerializer(data=request.data)
 
         if serializer.is_valid():
             # extract validated user
@@ -54,7 +54,7 @@ class UserLoginAPIView(APIView):
             'error': serializer.errors,
         }, status=status.HTTP_400_BAD_REQUEST)
 
-# ✓ DRF applied
+# ✓ DRF Applied
 class UserRegisterAPIView(APIView):
     """
     Take the username, password and email(optional) and validate it,

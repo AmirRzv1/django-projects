@@ -31,7 +31,6 @@ class UserLoginView(View):
     form_class = UserLoginForm
     template_name = "accounts/login.html"
 
-    # because this part repeat a lot i put it here.
     def handle_template_and_error(self, request, message, form):
         messages.error(request, message)
         return render(request, self.template_name, {"form": form})
@@ -39,7 +38,7 @@ class UserLoginView(View):
     def get(self, request):
         form = self.form_class()
         try:
-            return render(request, "accounts/login.html", {"form": form})
+            return render(request, self.template_name, {"form": form})
         except TemplateSyntaxError:
             return HttpResponseServerError("Landing page template not found.")
         except TemplateDoesNotExist as e:
@@ -57,11 +56,12 @@ class UserLoginView(View):
             try:
                 response = requests.post(
                     "http://127.0.0.1:8001/accounts/login/",
-                    json={"username": username, "password": password},
-                    timeout=5
+                    json={
+                        "username_or_email": username,
+                        "password": password
+                    },
+                    timeout=5,
                 )
-                response.raise_for_status()  # raise exception for HTTP 4xx/5xx
-                response_result = response.json()
 
             except requests.ConnectionError:
                 msg = "Cannot reach authentication server. Try again later."
@@ -71,32 +71,46 @@ class UserLoginView(View):
                 msg = "Authentication server timed out. Try again later."
                 return self.handle_template_and_error(request, msg, form)
 
-            except requests.HTTPError:
-                msg = f"Authentication failed: {response.status_code}"
-                return self.handle_template_and_error(request, msg, form)
-
-            except json.JSONDecodeError:
-                msg = "Invalid response from authentication server."
-                return self.handle_template_and_error(request, msg, form)
-
             except Exception as e:
                 msg = f"Unexpected error: {str(e)}"
                 return self.handle_template_and_error(request, msg, form)
 
-            # Add information to the session.
-            if response_result.get("success"):
-                request.session["access_token"] = response_result["access"]
-                request.session["refresh_token"] = response_result["refresh"]
-                request.session["user_id"] = response_result["user_id"]
-                request.session["username"] = response_result["username"]
-                request.session["user_is_authenticated"] = True
+            # Handle failed response (4xx, 5xx)
+            if response.status_code != 200:
+                try:
+                    error_data = response.json()
+                    msg = error_data.get("errors", "Invalid credentials.")
+                except (ValueError, KeyError):
+                    msg = f"Authentication failed (status {response.status_code})"
+                return self.handle_template_and_error(request, msg, form)
+
+            # Handle successful response
+            try:
+                response_data = response.json()
+            except ValueError:
+                msg = "Invalid response from authentication server."
+                return self.handle_template_and_error(request, msg, form)
+
+            # Check if token exists in response
+            token = response_data.get("token")
+            user_info = response_data.get("user")
+
+            if token and user_info:
+                # Save to session
+                request.session["jwt_token"] = token
+                request.session["user_id"] = user_info.get("id")
+                request.session["username"] = user_info.get("username")
+                request.session["email"] = user_info.get("email")
+                request.session["is_authenticated"] = True
 
                 messages.success(request, "User successfully logged in.")
                 return redirect("core:home")
-
             else:
-                msg = response_result.get("error", "Invalid credentials")
+                msg = "Invalid response structure from server."
                 return self.handle_template_and_error(request, msg, form)
+
+        # Form is not valid
+        return render(request, self.template_name, {"form": form})
 
 # ✓ Fixed
 class UserLogoutView(View):
@@ -110,7 +124,7 @@ class UserLogoutView(View):
         messages.success(request, "User successfully logged out.")
         return redirect("core:home")
 
-# ✓ DRF applied
+# ✓ DRF Applied
 class UserRegisterView(View):
     """
     take the username, password and email(optional) from user and use this
