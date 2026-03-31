@@ -19,11 +19,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 class UserLoginSerializer(serializers.Serializer):
-    # our front-end or web_service here sends these fields as json
+    # our front-end or web_service, sends these fields as json
     username_or_email = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
-    # overwrite the validate method to implement the logic of logging
+    # overwrite the validate method to implement the logic of logging in
     # user with email or username.
     def validate(self, data):
         username_or_email = data.get("username_or_email")
@@ -40,13 +40,13 @@ class UserLoginSerializer(serializers.Serializer):
         else:
             username = username_or_email
 
-        # Tip : authenticate validate users only with the username.
+        # Tip : authenticate, validate users only with the username.
         user = authenticate(username=username, password=password)
 
         if not user:
             raise serializers.ValidationError("Invalid credentials")
 
-        # Tip : serializers must return data so we use it in out view
+        # Tip : serializers must return data so we use it in our view
         # whatever we return becomes serializer.validated_data
         data['user'] = user
         return data

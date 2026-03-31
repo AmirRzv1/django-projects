@@ -19,60 +19,13 @@ from .serializers import *
 # anything so isntead of didsable the csrf for each view i disable it globally
 
 # ✓ Fixed
-class UserLoginAPIView(View):
-    # check that if the user is sending the username or email
-    # based on that we return the related information
-    def validate_username_or_email(self, data):
-        if data and "@" in data:
-            return {"email": data.lower()}
-        return {"username": data.lower()}
+class UserLoginAPIView(APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"success": False, "error": "Invalid request body"}, status=400)
+        serializer = UserRegisterSerializer(data=request.data)
 
-        username = data["username"]
-        password = data["password"]
 
-        if not username or not password:
-            return JsonResponse({"success": False, "error": "Username and password are required"}, status=401)
-
-        result = self.validate_username_or_email(username)
-
-        try:
-            if "username" in result:
-                real_user = User.objects.get(username=username)
-                user = authenticate(username=result["username"], password=password)
-                if user is None:
-                    return JsonResponse({"success": False, "error": "Invalid username or password"},
-                                         status=401)
-                return JsonResponse({"success": True,
-                                     "username": real_user.username,
-                                     "user_id": real_user.pk}, status=200)
-
-            else:
-                try:
-                    user_by_email = User.objects.get(email=result["email"])
-                except User.DoesNotExist:
-                    return JsonResponse({"success": False, "error": "Invalid username or password"},
-                    status = 401)
-
-                user = authenticate(username=user_by_email.username, password=password)
-                if user is None:
-                    return JsonResponse({"success": False, "error": "Invalid username or password"},
-                                         status=401)
-
-                return JsonResponse( {"success": True,
-                                  "username": user_by_email.username,
-                                  "user_id": user_by_email.pk}, status=200)
-        except Exception:
-            # Unexpected server/database error
-            return JsonResponse(
-                {"success": False, "error": "Internal server error"},
-                status=500
-                    )
 
 # ✓ Converted to DRF
 class UserRegisterAPIView(APIView):
