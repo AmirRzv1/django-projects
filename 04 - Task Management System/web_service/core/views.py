@@ -132,14 +132,17 @@ class UserRegisterView(View):
             try:
                 error_data = response.json()
 
-                if "errors" in error_data:
-                    errors = error_data["errors"]
+                if "error" in error_data:  # Changed from "errors"
+                    errors = error_data["error"]
                 else:
                     errors = error_data
 
-                # Convert to user-friendly message
                 error_messages = []
                 for field, messages_list in errors.items():
+                    # Handle both string and list
+                    if isinstance(messages_list, str):
+                        messages_list = [messages_list]
+
                     if field == "non_field_errors":
                         error_messages.extend(messages_list)
                     else:
