@@ -110,7 +110,7 @@ class UserLogoutView(View):
         messages.success(request, "User successfully logged out.")
         return redirect("core:home")
 
-# ✓ Fixed | DRF edition
+# ✓ DRF applied
 class UserRegisterView(View):
     """
     take the username, password and email(optional) from user and use this

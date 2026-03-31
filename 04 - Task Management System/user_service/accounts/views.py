@@ -1,5 +1,8 @@
 import json
 
+# jwt
+from .utils import generate_jwt_token
+
 # Django
 from django.http import JsonResponse
 from django.views import View
@@ -20,14 +23,38 @@ from .serializers import *
 
 # ✓ Fixed
 class UserLoginAPIView(APIView):
+    """
+    use the credentials to validate the user by email or username
+    then create a JWT token and send back the whole result.
+    """
+
     permission_classes = [AllowAny]
 
     def post(self, request):
+        # validate the data
         serializer = UserRegisterSerializer(data=request.data)
 
+        if serializer.is_valid():
+            # extract validated user
+            user = serializer.validated_data["user"]
+            # create a token
+            token = generate_jwt_token(user)
 
+            # return the result
+            return Response({
+                'token': token,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                }
+            }, status=status.HTTP_200_OK)
 
-# ✓ Converted to DRF
+        return Response({
+            'error': serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+# ✓ DRF applied
 class UserRegisterAPIView(APIView):
     """
     Take the username, password and email(optional) and validate it,
