@@ -76,6 +76,11 @@ class UserLoginAPIView(View):
 
 # ✓ Converted to DRF
 class UserRegisterAPIView(APIView):
+    """
+    Take the username, password and email(optional) and validate it,
+    after that save the user and send a message to the web_service.
+
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):

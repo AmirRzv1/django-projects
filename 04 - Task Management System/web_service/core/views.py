@@ -110,8 +110,12 @@ class UserLogoutView(View):
         messages.success(request, "User successfully logged out.")
         return redirect("core:home")
 
-# ✓ Fixed
+# ✓ Fixed | DRF edition
 class UserRegisterView(View):
+    """
+    take the username, password and email(optional) from user and use this
+    to create a user with user_service and show the response.
+    """
     form_class = UserRegisterForm
 
     # validate the output of calling here and then send the final result back
