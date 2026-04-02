@@ -22,109 +22,6 @@ class HomeView(View):
         except Exception as e:
             return HttpResponseServerError(f"Unexpected error: {str(e)}")
 
-# ✓ Fixed
-class UserLoginView(View):
-    """
-    Take the essential information from the user and send them to the
-    user_service to be authenticated and save the information in the session.
-    """
-    form_class = UserLoginForm
-    template_name = "accounts/login.html"
-
-    def handle_template_and_error(self, request, message, form):
-        messages.error(request, message)
-        return render(request, self.template_name, {"form": form})
-
-    def get(self, request):
-        form = self.form_class()
-        try:
-            return render(request, self.template_name, {"form": form})
-        except TemplateSyntaxError:
-            return HttpResponseServerError("Landing page template not found.")
-        except TemplateDoesNotExist as e:
-            return HttpResponseServerError(f"Template syntax error: {str(e)}")
-        except Exception as e:
-            return HttpResponseServerError(f"Unexpected error: {str(e)}")
-
-    def post(self, request):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            username = data.get("username")
-            password = data.get("password")
-
-            try:
-                response = requests.post(
-                    "http://127.0.0.1:8001/accounts/login/",
-                    json={
-                        "username_or_email": username,
-                        "password": password
-                    },
-                    timeout=5,
-                )
-
-            except requests.ConnectionError:
-                msg = "Cannot reach authentication server. Try again later."
-                return self.handle_template_and_error(request, msg, form)
-
-            except requests.Timeout:
-                msg = "Authentication server timed out. Try again later."
-                return self.handle_template_and_error(request, msg, form)
-
-            except Exception as e:
-                msg = f"Unexpected error: {str(e)}"
-                return self.handle_template_and_error(request, msg, form)
-
-            # Handle failed response (4xx, 5xx)
-            if response.status_code != 200:
-                try:
-                    error_data = response.json()
-                    msg = error_data.get("errors", "Invalid credentials.")
-                except (ValueError, KeyError):
-                    msg = f"Authentication failed (status {response.status_code})"
-                return self.handle_template_and_error(request, msg, form)
-
-            # Handle successful response
-            try:
-                response_data = response.json()
-            except ValueError:
-                msg = "Invalid response from authentication server."
-                return self.handle_template_and_error(request, msg, form)
-
-            # Check if token exists in response
-            token = response_data.get("token")
-            user_info = response_data.get("user")
-            print(f"user = {user_info.get('username')} | token = {token}")
-
-            if token and user_info:
-                # Save to session
-                request.session["jwt_token"] = token
-                request.session["user_id"] = user_info.get("id")
-                request.session["username"] = user_info.get("username")
-                request.session["email"] = user_info.get("email")
-                request.session["user_is_authenticated"] = True
-
-                messages.success(request, "User successfully logged in.")
-                return redirect("core:home")
-            else:
-                msg = "Invalid response structure from server."
-                return self.handle_template_and_error(request, msg, form)
-
-        # Form is not valid
-        return render(request, self.template_name, {"form": form})
-
-# ✓ Fixed
-class UserLogoutView(View):
-    def post(self, request):
-        if not request.session.get("user_id"):
-            messages.error(request, "You are not logged in.")
-            return redirect("core:home")
-
-        request.session.flush()
-
-        messages.success(request, "User successfully logged out.")
-        return redirect("core:home")
-
 # ✓ DRF Applied
 class UserRegisterView(View):
     """
@@ -217,61 +114,167 @@ class UserRegisterView(View):
 
         return redirect("core:home")
 
+# ✓ DRF Applied
+class UserLoginView(View):
+    """
+    Take the essential information from the user and send them to the
+    user_service to be authenticated and save the information in the session.
+    """
+    form_class = UserLoginForm
+    template_name = "accounts/login.html"
+
+    def handle_template_and_error(self, request, message, form):
+        messages.error(request, message)
+        return render(request, self.template_name, {"form": form})
+
+    def get(self, request):
+        form = self.form_class()
+        try:
+            return render(request, self.template_name, {"form": form})
+        except TemplateSyntaxError:
+            return HttpResponseServerError("Landing page template not found.")
+        except TemplateDoesNotExist as e:
+            return HttpResponseServerError(f"Template syntax error: {str(e)}")
+        except Exception as e:
+            return HttpResponseServerError(f"Unexpected error: {str(e)}")
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            username = data.get("username")
+            password = data.get("password")
+
+            try:
+                response = requests.post(
+                    "http://127.0.0.1:8001/accounts/login/",
+                    json={
+                        "username_or_email": username,
+                        "password": password
+                    },
+                    timeout=5,
+                )
+
+            except requests.ConnectionError:
+                msg = "Cannot reach authentication server. Try again later."
+                return self.handle_template_and_error(request, msg, form)
+
+            except requests.Timeout:
+                msg = "Authentication server timed out. Try again later."
+                return self.handle_template_and_error(request, msg, form)
+
+            except Exception as e:
+                msg = f"Unexpected error: {str(e)}"
+                return self.handle_template_and_error(request, msg, form)
+
+            # Handle failed response (4xx, 5xx)
+            if response.status_code != 200:
+                try:
+                    error_data = response.json()
+                    msg = error_data.get("errors", "Invalid credentials.")
+                except (ValueError, KeyError):
+                    msg = f"Authentication failed (status {response.status_code})"
+                return self.handle_template_and_error(request, msg, form)
+
+            # Handle successful response
+            try:
+                response_data = response.json()
+            except ValueError:
+                msg = "Invalid response from authentication server."
+                return self.handle_template_and_error(request, msg, form)
+
+            # Check if token exists in response
+            token = response_data.get("token")
+            user_info = response_data.get("user")
+            print(f"user = {user_info.get('username')} | token = {token}")
+
+            if token and user_info:
+                # Save to session
+                request.session["jwt_token"] = token
+                request.session["user_id"] = user_info.get("id")
+                request.session["username"] = user_info.get("username")
+                request.session["email"] = user_info.get("email")
+                request.session["user_is_authenticated"] = True
+
+                messages.success(request, "User successfully logged in.")
+                return redirect("core:home")
+            else:
+                msg = "Invalid response structure from server."
+                return self.handle_template_and_error(request, msg, form)
+
+        # Form is not valid
+        return render(request, self.template_name, {"form": form})
+
+# ✓ DRF Applied
+class UserLogoutView(View):
+    def post(self, request):
+        if not request.session.get("user_id"):
+            messages.error(request, "You are not logged in.")
+            return redirect("core:home")
+
+        request.session.flush()
+
+        messages.success(request, "User successfully logged out.")
+        return redirect("core:home")
+
 # ✓ Fixed
 class DashboardView(View):
 
     def get(self, request):
-        # user information
         user_id = request.session.get("user_id")
+        token = request.session.get("jwt_token")
 
-        if not user_id:
+        if not user_id or not token:
             messages.error(request, "You need to login first!")
             return redirect("core:home")
+
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # ---- Fetch User Info ----
         try:
             user_response = requests.get("http://127.0.0.1:8001/accounts/information/",
-                                    json={ "user_id": user_id },
+                                    headers=headers,
                                     timeout=5)
-            if not user_response.content:
-                raise ValueError("Empty Response.")
 
-            user_response_result = user_response.json()
-
-        except(RequestException, HTTPError):
-                messages.error(request, "Unable to load user information.")
+            if user_response.status_code == 401:
+                messages.error(request, "Session expired. Please login again.")
+                request.session.flush()
                 return redirect("core:home")
 
-        except ValueError:
-            messages.error(request, "Invalid user information response.")
+            user_response.raise_for_status()
+            user_data = user_response.json()
+
+        except requests.exceptions.RequestException:
+            messages.error(request, "Unable to load user information.")
             return redirect("core:home")
 
-        request.session["username"] = user_response_result.get("username")
-        request.session["email"] = user_response_result.get("email", "No email.")
+        # Update session with fresh data
+        request.session["username"] = user_data.get("username")
+        request.session["email"] = user_data.get("email", "No email.")
 
-        # user tasks
+        # ---- Fetch Tasks ----
         tasks = []
         task_count = 0
+
         try:
-            user_task_response = requests.get("http://127.0.0.1:8000/tasks/tasks/",
-                                              json={"user_id": user_id},
-                                              timeout=5)
+            task_response = requests.get(
+                "http://127.0.0.1:8000/api/tasks/",
+                headers=headers,
+                timeout=5
+            )
 
-            user_task_response.raise_for_status()
+            if task_response.status_code == 200:
+                task_data = task_response.json()
+                tasks = task_data.get("tasks", [])
+                task_count = task_data.get("count", 0)
 
-            if user_task_response.content:
-                user_task_response_result = user_task_response.json()
-                tasks = user_task_response_result.get("tasks")
-
-            for task in tasks:
-                if task["status"] != "soft_delete":
-                    task_count += 1
-
-        except (RequestException, HTTPError):
+        except requests.exceptions.RequestException:
             messages.warning(request, "Tasks service unavailable.")
 
-        except ValueError:
-            messages.warning(request, "Invalid tasks response.")
-
-        return render(request, "tasks/dashboard.html", {"tasks": tasks, "task_count": task_count})
+        return render(request, "tasks/dashboard.html", {
+            "tasks": tasks,
+            "task_count": task_count
+        })
 
 # ✓ Fixed
 class UserTaskCreateView(View):
