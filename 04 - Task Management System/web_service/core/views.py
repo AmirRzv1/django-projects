@@ -217,7 +217,7 @@ class UserLogoutView(View):
         messages.success(request, "User successfully logged out.")
         return redirect("core:home")
 
-# ✓ Fixed
+# ✓ DRF Applied
 class DashboardView(View):
 
     def get(self, request):
@@ -253,27 +253,33 @@ class DashboardView(View):
         request.session["email"] = user_data.get("email", "No email.")
 
         # ---- Fetch Tasks ----
-        tasks = []
-        task_count = 0
+        active_tasks = []
+        active_count = 0
+        deleted_tasks = []
+        deleted_count = 0
 
         try:
             task_response = requests.get(
-                "http://127.0.0.1:8000/api/tasks/",
+                "http://127.0.0.1:8000/tasks/tasks/",
                 headers=headers,
                 timeout=5
             )
 
             if task_response.status_code == 200:
                 task_data = task_response.json()
-                tasks = task_data.get("tasks", [])
-                task_count = task_data.get("count", 0)
+                active_tasks = task_data.get("active_tasks", [])
+                active_count = task_data.get("active_count", 0)
+                deleted_tasks = task_data.get("deleted_tasks", [])
+                deleted_count = task_data.get("deleted_count", 0)
 
         except requests.exceptions.RequestException:
             messages.warning(request, "Tasks service unavailable.")
 
         return render(request, "tasks/dashboard.html", {
-            "tasks": tasks,
-            "task_count": task_count
+            "active_tasks": active_tasks,
+            "active_count": active_count,
+            "deleted_tasks": deleted_tasks,
+            "deleted_count": deleted_count,
         })
 
 # ✓ Fixed

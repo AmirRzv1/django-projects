@@ -1,29 +1,40 @@
+# Django
 import json
 from django.http import JsonResponse
 from django.views import View
 from .models import Task
 
-# ✓ Fixed | tip : (get method cant have the request body - it should have the data from url or parameters)
-class UserTasksGetAPIView(View):
+# DRF
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+
+# ✓ DRF Applied
+class UserTasksGetAPIView(APIView):
+
     def get(self, request):
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"success": False, "error": "Invalid request body"},status=400)
+        user_id = request.user.id
 
-        user_id = data.get("user_id")
-        if not user_id:
-            return JsonResponse({"success": False, "error": "Missing user_id"},status=400)
+        all_tasks = Task.objects.filter(owner=user_id).values(
+            'id', 'title', 'description', 'status', 'created_at'
+        )
 
-        tasks_query = Task.objects.filter(owner=user_id)
-        tasks = list(tasks_query.values())
+        active_tasks = []
+        deleted_tasks = []
 
-        return JsonResponse(
-            {
-                "success": True,
-                "tasks": tasks
-            },
-            status=200)
+        for task in all_tasks:
+            if task['status'] == 'soft_delete':
+                deleted_tasks.append(task)
+            else:
+                active_tasks.append(task)
+
+        return Response({
+            "active_tasks": active_tasks,
+            "active_count": len(active_tasks),
+            "deleted_tasks": deleted_tasks,
+            "deleted_count": len(deleted_tasks),
+        }, status=status.HTTP_200_OK)
 
 # ✓ Fixed
 class UserTaskCreateAPIView(View):
