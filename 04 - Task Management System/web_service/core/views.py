@@ -26,7 +26,7 @@ class HomeView(View):
 class UserLoginView(View):
     """
     Take the essential information from the user and send them to the
-    user_service to be authenticated and save the credentials in the session.
+    user_service to be authenticated and save the information in the session.
     """
     form_class = UserLoginForm
     template_name = "accounts/login.html"
@@ -94,6 +94,7 @@ class UserLoginView(View):
             # Check if token exists in response
             token = response_data.get("token")
             user_info = response_data.get("user")
+            print(f"user = {user_info.get('username')} | token = {token}")
 
             if token and user_info:
                 # Save to session
@@ -101,7 +102,7 @@ class UserLoginView(View):
                 request.session["user_id"] = user_info.get("id")
                 request.session["username"] = user_info.get("username")
                 request.session["email"] = user_info.get("email")
-                request.session["is_authenticated"] = True
+                request.session["user_is_authenticated"] = True
 
                 messages.success(request, "User successfully logged in.")
                 return redirect("core:home")
