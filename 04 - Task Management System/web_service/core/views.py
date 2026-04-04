@@ -354,12 +354,16 @@ class UserTaskCreateView(View):
         msg = response_result.get("error", "Task creation failed.")
         return self.handle_template_and_error(request, msg, form)
 
-# ✓ Fixed
+# ✓ DRF Applied
 class TaskSoftDelete(View):
 
     def post(self, request, task_id):
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
+
         try:
-            token = request.session.get("jwt_token")
             response = requests.post(f"http://127.0.0.1:8000/tasks/task-soft-delete/{task_id}/",
                                      headers={"Authorization": f"Bearer {token}"},
                                      timeout=5)
@@ -409,13 +413,16 @@ class TaskUpdateView(View):
 
     def get(self, request, task_id):
         # getting real_task to prefill the entries
-        user_id = request.session.get("user_id")
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
 
         try:
             # Use query parameters for GET (REST standard)
             response = requests.get(
-                "http://127.0.0.1:8000/tasks/task-detail/",
-                json={"user_id": user_id, "task_id": task_id},
+                f"http://127.0.0.1:8000/tasks/task-detail/{task_id}/",
+                headers={"Authorization": f"Bearer {token}"},
                 timeout=5
             )
             response.raise_for_status()
@@ -427,16 +434,10 @@ class TaskUpdateView(View):
                 messages.error(request, "Invalid response from server")
                 return redirect("core:dashboard")
 
-            # Check if task exists
-            task = result.get("task")
-            if not task:
-                messages.error(request, "Task not found")
-                return redirect("core:dashboard")
-
             form = self.class_form(initial={
-                "title": task["title"],
-                "description": task["description"],
-                "status": task["status"]
+                "title": result["title"],
+                "description": result["description"],
+                "status": result["status"]
             })
             return render(request, self.class_template, {"form": form})
 
