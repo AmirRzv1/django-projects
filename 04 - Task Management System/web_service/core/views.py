@@ -2,6 +2,7 @@ import requests
 import json
 import jwt
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from requests.exceptions import RequestException, HTTPError
 from .forms import *
@@ -287,8 +288,8 @@ class DashboardView(View):
             "deleted_count": deleted_count,
         })
 
-# ✓ Fixed
-class UserTaskCreateView(View):
+# ✓ DRF Applied
+class UserTaskCreateView(LoginRequiredMixin, View):
     form_class = TasksCreateForm
     template_class = "tasks/task_create.html"
 
@@ -302,26 +303,22 @@ class UserTaskCreateView(View):
         return render(request, self.template_class, {"form": form})
 
     def post(self, request):
-        user_id = request.session.get("user_id")
-
-        # Must be logged in
-        if not user_id:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         form = self.form_class(request.POST)
         if not form.is_valid():
             return render(request, self.template_class, {"form": form})
 
         data = form.cleaned_data
+        token = request.session.get("jwt_token")
+        headers = {"Authorization": f"Bearer {token}"}
 
         try:
             response = requests.post("http://127.0.0.1:8000/tasks/task_create/",
+                                     headers=headers,
                                      json={
-                                         "user_id": user_id,
                                          "title": data["title"],
                                          "description": data["description"]
-                                     })
+                                     },
+                                     timeout=5)
             response.raise_for_status()
 
         except (RequestException, HTTPError):
