@@ -79,7 +79,7 @@ class TaskSoftDeleteAPIView(APIView):
             return Response({"success": True},
                                 status=status.HTTP_200_OK)
 
-# ✓ Fixed
+# ✓ DRF Applied
 class TaskDetailAPIView(APIView):
     def get(self, request, task_id):
         try:
@@ -93,9 +93,6 @@ class TaskDetailAPIView(APIView):
                          "description": task.description,
                          "status": task.status},
                         status=status.HTTP_200_OK)
-
-
-
 
 # ✓ Fixed
 class TaskRestoreAPIView(View):
@@ -202,65 +199,31 @@ class TaskHardDeleteAPIView(View):
             status=200
         )
 
-# ✓ Fixed
-class TaskUpdateAPIView(View):
-    def post(self, request):
-        # Handle JSON parsing errors
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {"success": False, "error": "Invalid JSON format"},
-                status=400
-            )
+# ✓ DRF Applied
+class TaskUpdateAPIView(APIView):
+    def post(self, request, task_id):
+        serializer = TaskUpdateSerializer(data=request.data)
 
-        # Validate required fields
-        task_id = data.get("task_id")
-        user_id = data.get("user_id")
+        if serializer.is_valid():
+            try:
+                task = Task.objects.get(owner=request.user.id, pk=task_id)
+            except Task.DoesNotExist:
+                return Response({"success": False, "error": "Task does not exist."},
+                                status=status.HTTP_404_NOT_FOUND)
 
-        if not task_id:
-            return JsonResponse(
-                {"success": False, "error": "task_id is required"},
-                status=400
-            )
+            task.title = serializer.validated_data["title"]
+            task.description = serializer.validated_data["description"]
+            task.status = serializer.validated_data["status"]
+            task.save()
 
-        if not user_id:
-            return JsonResponse(
-                {"success": False, "error": "user_id is required"},
-                status=400
-            )
+            return Response({"success": True}, status.HTTP_200_OK)
 
-        # Handle task not found or access denied
-        try:
-            task = Task.objects.get(pk=task_id, owner=user_id)
-        except Task.DoesNotExist:
-            return JsonResponse(
-                {"success": False, "error": "Task not found or access denied"},
-                status=404
-            )
-
-        # Check if task is soft-deleted
-        if task.status == "soft_delete":
-            return JsonResponse(
-                {"success": False, "error": "Cannot update deleted task"},
-                status=400
-            )
-
-        # Only update fields that are provided (partial update)
-        title = data.get("title")
-        description = data.get("description")
-        status = data.get("status")
-
-        task.title = title
-        task.description = description
-        task.status = status
-
-        task.save()
-
-        return JsonResponse(
-            {"success": True, "message": "Task updated successfully"},
-            status=200
+        return Response(
+            {"success": False, "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
+
+
 
 
 

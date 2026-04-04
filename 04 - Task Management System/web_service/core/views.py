@@ -406,7 +406,7 @@ class TaskSoftDelete(View):
             messages.error(request, "An unexpected error occurred")
             return redirect("core:dashboard")
 
-# ✓ Fixed
+# ✓ DRF Applied
 class TaskUpdateView(View):
     class_template = "tasks/task_update.html"
     class_form = TaskUpdateForm
@@ -462,20 +462,22 @@ class TaskUpdateView(View):
 
     def post(self, request, task_id):
         form = self.class_form(request.POST)
-        user_id = request.session.get("user_id")
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
 
         if form.is_valid():
             data = form.cleaned_data
             try:
                 response = requests.post(
-                    "http://127.0.0.1:8000/tasks/task-update/",
+                    f"http://127.0.0.1:8000/tasks/task-update/{task_id}/",
                     json={
-                        "task_id": task_id,
-                        "user_id": user_id,
                         "title": data["title"],
                         "description": data["description"],
                         "status": data["status"]
                     },
+                    headers={"Authorization": f"Bearer {token}"},
                     timeout=5
                 )
                 response.raise_for_status()
