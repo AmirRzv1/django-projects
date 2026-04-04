@@ -358,10 +358,10 @@ class UserTaskCreateView(View):
 class TaskSoftDelete(View):
 
     def post(self, request, task_id):
-
         try:
-            response = requests.post("http://127.0.0.1:8000/tasks/task-soft-delete/",
-                                     json={"task_id": task_id},
+            token = request.session.get("jwt_token")
+            response = requests.post(f"http://127.0.0.1:8000/tasks/task-soft-delete/{task_id}/",
+                                     headers={"Authorization": f"Bearer {token}"},
                                      timeout=5)
             response.raise_for_status()
             try:

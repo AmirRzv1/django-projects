@@ -62,28 +62,22 @@ class TaskCreateAPIView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-# ✓ Fixed
-class TaskSoftDeleteAPIView(View):
-    def post(self, request):
-        serializer = TaskSoftDeleteSerializer(data=request.data)
+# ✓ DRF Applied
+class TaskSoftDeleteAPIView(APIView):
+    def post(self, request, task_id):
+            try:
+                task = Task.objects.get(pk=task_id, owner=request.user.id)
+            except Task.DoesNotExist:
+                return Response(
+                    {"success": False, "error": "Task not found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
-        if serializer.is_valid():
-            data = serializer.validated_data
-
-            user_id = request.user.id
-            task_id = data["task_id"]
-
-            task = Task.objects.get(pk=task_id, owner=user_id)
             task.status = "soft_delete"
             task.save()
 
             return Response({"success": True},
-                            status=status.HTTP_200_OK)
-
-        return Response(
-            {"success": False, "errors": serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+                                status=status.HTTP_200_OK)
 
 # ✓ Fixed
 class TaskDetailAPIView(View):
