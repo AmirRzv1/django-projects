@@ -94,58 +94,19 @@ class TaskDetailAPIView(APIView):
                          "status": task.status},
                         status=status.HTTP_200_OK)
 
-# ✓ Fixed
-class TaskRestoreAPIView(View):
-    def post(self, request):
-        # Handle JSON parsing errors
+# ✓ DRF Applied
+class TaskRestoreAPIView(APIView):
+    def post(self, request, task_id):
         try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {"success": False, "error": "Invalid JSON format"},
-                status=400
-            )
-
-        # Validate required fields
-        task_id = data.get("task_id")
-        user_id = data.get("user_id")
-
-        if not task_id:
-            return JsonResponse(
-                {"success": False, "error": "task_id is required"},
-                status=400
-            )
-
-        if not user_id:
-            return JsonResponse(
-                {"success": False, "error": "user_id is required"},
-                status=400
-            )
-
-        # Handle task not found or access denied
-        try:
-            real_task = Task.objects.get(pk=task_id, owner=user_id)
+            task = Task.objects.get(owner=request.user.id, pk=task_id)
         except Task.DoesNotExist:
-            return JsonResponse(
-                {"success": False, "error": "Task not found or access denied"},
-                status=404
-            )
+            return Response({"success": False, "error": "Task does not found."},
+                            status=status.HTTP_404_NOT_FOUND)
 
-        # Check if task is actually soft-deleted
-        if real_task.status != "soft_delete":
-            return JsonResponse(
-                {"success": False, "error": "Task is not deleted"},
-                status=400
-            )
+        task.status = "ongoing"
+        task.save()
 
-        # Restore task
-        real_task.status = "ongoing"
-        real_task.save()
-
-        return JsonResponse(
-            {"success": True, "message": "Task restored successfully"},
-            status=200
-        )
+        return Response({"success": True}, status=status.HTTP_200_OK)
 
 # ✓ Fixed
 class TaskHardDeleteAPIView(View):

@@ -566,13 +566,17 @@ class RecycleBinView(View):
             "deleted_count": deleted_count,
         })
 
-
-# ✓ Fixed
+# ✓ DRF Applied
 class TaskRestoreView(View):
     def post(self, request, task_id):
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
+
         try:
-            response = requests.post("http://127.0.0.1:8000/tasks/task-restore/",
-                                     json={"task_id": task_id, "user_id": request.session["user_id"]},
+            response = requests.post(f"http://127.0.0.1:8000/tasks/task-restore/{task_id}/",
+                                     headers={"Authorization": f"Bearer {token}"},
                                      timeout=5)
             response.raise_for_status()
             # Handle JSON parsing
