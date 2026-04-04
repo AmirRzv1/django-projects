@@ -221,6 +221,12 @@ class UserLogoutView(View):
 
 # ✓ DRF Applied
 class DashboardView(View):
+    """
+    showing the dashboard for user with the information the user provide by
+    the token it has and we extract it and put data in the places and
+    show it in final template and also extract the data we needed from task_service.
+    """
+
 
     def get(self, request):
         user_id = request.session.get("user_id")
@@ -229,8 +235,6 @@ class DashboardView(View):
         if not user_id or not token:
             messages.error(request, "You need to login first!")
             return redirect("core:home")
-
-        headers = {"Authorization": f"Bearer {token}"}
 
         # ---- Extract user info from token ----
         try:
