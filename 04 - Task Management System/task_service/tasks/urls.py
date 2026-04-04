@@ -5,7 +5,7 @@ app_name = "tasks"
 
 urlpatterns = [
     path("tasks/", UserTasksGetAPIView.as_view(), name="user_task"),
-    path("task_create/", UserTaskCreateAPIView.as_view(), name="task_create"),
+    path("task_create/", TaskCreateAPIView.as_view(), name="task_create"),
     path("task-soft-delete/", TaskSoftDeleteAPIView.as_view(), name="task_soft_delete"),
     path("task-detail/", TaskDetailAPIView.as_view(), name="task_detail"),
     path("task-restore/", TaskRestoreAPIView.as_view(), name="task_restore"),

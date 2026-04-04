@@ -7,3 +7,6 @@ class UserTaskCreateSerializer(serializers.Serializer):
                                         allow_blank=True,
                                         required=False,
                                         default="")
+
+class TaskSoftDeleteSerializer(serializers.Serializer):
+    task_id = serializers.IntegerField()

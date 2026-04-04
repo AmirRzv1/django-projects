@@ -38,7 +38,7 @@ class UserTasksGetAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 # ✓ DRF Applied
-class UserTaskCreateAPIView(APIView):
+class TaskCreateAPIView(APIView):
     """
     take the data from serializer and extract it and if it is True
     we will create the task for that specific user.
@@ -65,38 +65,24 @@ class UserTaskCreateAPIView(APIView):
 # ✓ Fixed
 class TaskSoftDeleteAPIView(View):
     def post(self, request):
-        # Handle JSON parsing errors
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {"success": False, "error": "Invalid JSON format"},
-                status=400
-            )
+        serializer = TaskSoftDeleteSerializer(data=request.data)
 
-        # Validate task_id exists in request
-        task_id = data.get("task_id")
-        if not task_id:
-            return JsonResponse(
-                {"success": False, "error": "task_id is required"},
-                status=400
-            )
+        if serializer.is_valid():
+            data = serializer.validated_data
 
-        # Handle task not found
-        try:
-            real_task = Task.objects.get(pk=task_id)
-        except Task.DoesNotExist:
-            return JsonResponse(
-                {"success": False, "error": "Task not found"},
-                status=404
-            )
+            user_id = request.user.id
+            task_id = data["task_id"]
 
-        # ✓ Perform soft delete
-        real_task.status = "soft_delete"
-        real_task.save()
-        return JsonResponse(
-            {"success": True, "message": "Task soft-deleted successfully"},
-            status=200
+            task = Task.objects.get(pk=task_id, owner=user_id)
+            task.status = "soft_delete"
+            task.save()
+
+            return Response({"success": True},
+                            status=status.HTTP_200_OK)
+
+        return Response(
+            {"success": False, "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
 # ✓ Fixed
