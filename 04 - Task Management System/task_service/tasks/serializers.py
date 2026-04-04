@@ -5,5 +5,5 @@ class UserTaskCreateSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=255,
                                         allow_null=True,
                                         allow_blank=True,
-                                        required=True,
+                                        required=False,
                                         default="")

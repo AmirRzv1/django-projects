@@ -289,7 +289,7 @@ class DashboardView(View):
         })
 
 # ✓ DRF Applied
-class UserTaskCreateView(LoginRequiredMixin, View):
+class UserTaskCreateView(View):
     form_class = TasksCreateForm
     template_class = "tasks/task_create.html"
 
@@ -299,16 +299,25 @@ class UserTaskCreateView(LoginRequiredMixin, View):
         return render(request, self.template_class, {"form": form})
 
     def get(self, request):
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
+
         form = self.form_class()
         return render(request, self.template_class, {"form": form})
 
     def post(self, request):
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
+
         form = self.form_class(request.POST)
         if not form.is_valid():
             return render(request, self.template_class, {"form": form})
 
         data = form.cleaned_data
-        token = request.session.get("jwt_token")
         headers = {"Authorization": f"Bearer {token}"}
 
         try:
