@@ -145,3 +145,8 @@ SIMPLE_JWT = {
 # Service URLs
 USER_SERVICE_URL = config('USER_SERVICE_URL', default='http://localhost:8001')
 TASK_SERVICE_URL = config('TASK_SERVICE_URL', default='http://localhost:8000')
+
+# JWT Settings (shared across services)
+JWT_SECRET_KEY = config('JWT_SECRET_KEY')
+JWT_ALGORITHM = config('JWT_ALGORITHM', default='HS256')
+JWT_EXPIRATION_HOURS = config('JWT_EXPIRATION_HOURS', default=24, cast=int)

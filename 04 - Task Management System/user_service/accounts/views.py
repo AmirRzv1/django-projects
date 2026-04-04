@@ -78,8 +78,8 @@ class UserRegisterAPIView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-# ✓ Fixed
-class UserInformationAPIView(View):
+# ✓ Fixed | don't need it yet
+class UserInformationAPIView(APIView):
     def get(self, request):
         data = json.loads(request.body)
 

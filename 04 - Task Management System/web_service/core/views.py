@@ -1,5 +1,7 @@
 import requests
 import json
+import jwt
+from django.conf import settings
 
 from requests.exceptions import RequestException, HTTPError
 from .forms import *
@@ -230,27 +232,26 @@ class DashboardView(View):
 
         headers = {"Authorization": f"Bearer {token}"}
 
-        # ---- Fetch User Info ----
+        # ---- Extract user info from token ----
         try:
-            user_response = requests.get("http://127.0.0.1:8001/accounts/information/",
-                                    headers=headers,
-                                    timeout=5)
-
-            if user_response.status_code == 401:
-                messages.error(request, "Session expired. Please login again.")
-                request.session.flush()
-                return redirect("core:home")
-
-            user_response.raise_for_status()
-            user_data = user_response.json()
-
-        except requests.exceptions.RequestException:
-            messages.error(request, "Unable to load user information.")
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            messages.error(request, "Session expired. Please login again.")
+            request.session.flush()
+            return redirect("core:home")
+        except jwt.InvalidTokenError:
+            messages.error(request, "Invalid session. Please login again.")
+            request.session.flush()
             return redirect("core:home")
 
+        username = payload.get("username")
+        email = payload.get("email")
+
+        headers = {"Authorization": f"Bearer {token}"}
+
         # Update session with fresh data
-        request.session["username"] = user_data.get("username")
-        request.session["email"] = user_data.get("email", "No email.")
+        request.session["username"] = username
+        request.session["email"] = email
 
         # ---- Fetch Tasks ----
         active_tasks = []
