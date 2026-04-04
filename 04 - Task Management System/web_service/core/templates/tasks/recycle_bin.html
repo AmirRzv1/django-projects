@@ -24,8 +24,8 @@ Recycle Bin | Task Tracker
                     <!-- Left: User Info -->
                     <div class="text-start">
                         <p class="mb-0">
-                            Email: {{ user.email }} <br>
-                            Deleted tasks: {{ task_soft_delete_count }}
+                            Email: {{ request.session.email }} <br>
+                            Deleted tasks: {{ deleted_count }}
                         </p>
                     </div>
 
@@ -51,7 +51,7 @@ Recycle Bin | Task Tracker
             </div>
 
             <ul class="list-group list-group-flush">
-                {% for task in tasks %}
+                {% for task in deleted_tasks %}
                 {% if task.status == "soft_delete" %}
                 <li class="list-group-item">
                     <div class="d-flex justify-content-between">

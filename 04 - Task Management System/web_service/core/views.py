@@ -523,32 +523,37 @@ class TaskUpdateView(View):
         messages.error(request, "Please correct the errors below")
         return render(request, self.class_template, {"form": form})
 
+# ✓ DRF Applied
 # need improvements, we don't need to take the whole tasks and then
 # filter them.
 class RecycleBinView(View):
     class_template = "tasks/recycle_bin.html"
 
     def get(self, request):
-        # user tasks
-        user_id = request.session.get("user_id")
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
 
-        tasks = []
-        task_soft_delete_count = 0
+        # ---- Fetch Tasks ----
+        deleted_tasks = []
+        deleted_count = 0
+        headers = {"Authorization": f"Bearer {token}"}
 
         try:
-            user_task_response = requests.get("http://127.0.0.1:8000/tasks/tasks/",
-                                              json={"user_id": user_id},
-                                              timeout=5)
+            task_response = requests.get(
+                "http://127.0.0.1:8000/tasks/tasks/",
+                headers=headers,
+                timeout=5
+            )
 
-            user_task_response.raise_for_status()
+            if task_response.status_code == 200:
+                task_data = task_response.json()
+                deleted_tasks = task_data.get("deleted_tasks", [])
+                deleted_count = task_data.get("deleted_count", 0)
 
-            if user_task_response.content:
-                user_task_response_result = user_task_response.json()
-                tasks = user_task_response_result.get("tasks")
-
-            for task in tasks:
-                if task["status"] == "soft_delete":
-                    task_soft_delete_count += 1
+        except requests.exceptions.RequestException:
+            messages.warning(request, "Tasks service unavailable.")
 
         except (RequestException, HTTPError):
             messages.warning(request, "Tasks service unavailable.")
@@ -556,7 +561,11 @@ class RecycleBinView(View):
         except ValueError:
             messages.warning(request, "Invalid tasks response.")
 
-        return render(request, self.class_template, {"tasks": tasks, "task_soft_delete_count": task_soft_delete_count})
+        return render(request, "tasks/recycle_bin.html", {
+            "deleted_tasks": deleted_tasks,
+            "deleted_count": deleted_count,
+        })
+
 
 # ✓ Fixed
 class TaskRestoreView(View):
