@@ -8,6 +8,7 @@ from .models import Task
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from .serializers import *
 
 
 # ✓ DRF Applied
@@ -36,64 +37,30 @@ class UserTasksGetAPIView(APIView):
             "deleted_count": len(deleted_tasks),
         }, status=status.HTTP_200_OK)
 
-# ✓ Fixed
-class UserTaskCreateAPIView(View):
+# ✓ DRF Applied
+class UserTaskCreateAPIView(APIView):
+    """
+    take the data from serializer and extract it and if it is True
+    we will create the task for that specific user.
+    """
     def post(self, request):
-        # Parse JSON with error handling
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {"success": False, "error": "Invalid JSON format"},
-                status=400
-            )
+        serializer = UserTaskCreateSerializer(data=request.data)
 
-        # Extract fields
-        user_id = data.get("user_id")
-        title = data.get("title")
-        description = data.get("description", "")  # Optional field with default
+        if serializer.is_valid():
+            data = serializer.validated_data
 
-        # Validate required fields exist
-        if not user_id:
-            return JsonResponse(
-                {"success": False, "error": "user_id is required"},
-                status=400
-            )
+            user_id = request.user.id
+            title = data["title"]
+            description = data["description"]
 
-        if not title:
-            return JsonResponse(
-                {"success": False, "error": "title is required"},
-                status=400
-            )
+            Task.objects.create(owner=user_id, title=title, description=description)
 
-        # Validate user_id is a valid integer
-        try:
-            user_id = int(user_id)
-        except (ValueError, TypeError):
-            return JsonResponse(
-                {"success": False, "error": "user_id must be a valid integer"},
-                status=400
-            )
+            return Response({ "success": True}, status=status.HTTP_201_CREATED)
 
-        # Create task
-        try:
-            Task.objects.create(
-                owner=user_id,
-                title=title,
-                description=description
-            )
-            return JsonResponse(
-                {
-                    "success": True,
-                    "message": "Task created successfully"
-                },
-                status=201
-            )
-        except Exception as e:
-            return JsonResponse(
-                {"success": False, "error": f"Failed to create task | {e}"},
-                status=500
-            )
+        return Response(
+            {"success": False, "errors": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 # ✓ Fixed
 class TaskSoftDeleteAPIView(View):
