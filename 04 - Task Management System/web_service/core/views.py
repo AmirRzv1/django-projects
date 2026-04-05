@@ -616,14 +616,20 @@ class TaskRestoreView(View):
             messages.error(request, "An unexpected error occurred")
             return redirect("core:recycle_bin")
 
-# ✓ Fixed
+# ✓ DRF Applied
 class TaskHardDeleteView(View):
     def post(self, request, task_id):
-        user_id = request.session.get("user_id")
+        token = request.session.get("jwt_token")
+        if not token:
+            messages.error(request, "You must login first.")
+            return redirect("core:home")
+        headers = {"Authorization": f"Bearer {token}"}
+
         try:
-            response = requests.post("http://127.0.0.1:8000/tasks/task-hard-delete/",
-                                     json={"user_id": user_id, "task_id": task_id},
+            response = requests.post(f"http://127.0.0.1:8000/tasks/task-hard-delete/{task_id}/",
+                                     headers=headers,
                                      timeout=5)
+
             response.raise_for_status()
             # Handle JSON parsing
             try:

@@ -85,7 +85,7 @@ class TaskDetailAPIView(APIView):
         try:
             task = Task.objects.get(owner=request.user.id, pk=task_id)
         except Task.DoesNotExist:
-            return Response({"success": False, "error": "Task Does not exist."},
+            return Response({"success": False, "error": "Task not exist."},
                             status=status.HTTP_404_NOT_FOUND)
 
         return Response({"success": True,
@@ -100,7 +100,7 @@ class TaskRestoreAPIView(APIView):
         try:
             task = Task.objects.get(owner=request.user.id, pk=task_id)
         except Task.DoesNotExist:
-            return Response({"success": False, "error": "Task does not found."},
+            return Response({"success": False, "error": "Task not found."},
                             status=status.HTTP_404_NOT_FOUND)
 
         task.status = "ongoing"
@@ -108,57 +108,17 @@ class TaskRestoreAPIView(APIView):
 
         return Response({"success": True}, status=status.HTTP_200_OK)
 
-# ✓ Fixed
-class TaskHardDeleteAPIView(View):
-    def post(self, request):
-        # Handle JSON parsing errors
+# ✓ DRF Applied
+class TaskHardDeleteAPIView(APIView):
+    def post(self, request, task_id):
         try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {"success": False, "error": "Invalid JSON format"},
-                status=400
-            )
-
-        # Validate required fields
-        task_id = data.get("task_id")
-        user_id = data.get("user_id")
-
-        if not task_id:
-            return JsonResponse(
-                {"success": False, "error": "task_id is required"},
-                status=400
-            )
-
-        if not user_id:
-            return JsonResponse(
-                {"success": False, "error": "user_id is required"},
-                status=400
-            )
-
-        # Handle task not found or access denied
-        try:
-            task = Task.objects.get(pk=task_id, owner=user_id)
+            task = Task.objects.get(owner=request.user.id, pk=task_id)
         except Task.DoesNotExist:
-            return JsonResponse(
-                {"success": False, "error": "Task not found or access denied"},
-                status=404
-            )
+            return Response({"success": False, "error": "Task not found."},
+                            status=status.HTTP_404_NOT_FOUND)
 
-        # Safety check: only hard-delete if already soft-deleted
-        if task.status != "soft_delete":
-            return JsonResponse(
-                {"success": False, "error": "Task must be soft-deleted first"},
-                status=400
-            )
-
-        # Perform hard delete
         task.delete()
-
-        return JsonResponse(
-            {"success": True, "message": "Task permanently deleted"},
-            status=200
-        )
+        return Response({"success": True}, status=status.HTTP_200_OK)
 
 # ✓ DRF Applied
 class TaskUpdateAPIView(APIView):
