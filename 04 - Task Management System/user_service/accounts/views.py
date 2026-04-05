@@ -1,4 +1,5 @@
 import json
+import logging
 
 # jwt
 from .utils import generate_jwt_token
@@ -21,6 +22,8 @@ from .serializers import *
 # because im using it as only internall api calling it doesnt render
 # anything so isntead of didsable the csrf for each view i disable it globally
 
+logger = logging.getLogger(__name__)
+
 # ✓ DRF Applied
 class UserLoginAPIView(APIView):
     """
@@ -31,14 +34,21 @@ class UserLoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+
+        # LOGGING
+        logger.info("Login attempt", extra={"username": request.data.get("username", "N/A")})
+
         # validate the data
         serializer = UserLoginSerializer(data=request.data)
-
         if serializer.is_valid():
             # extract validated user
             user = serializer.validated_data["user"]
             # create a token
             token = generate_jwt_token(user)
+
+            # LOGGING
+            logger.info("Login successful", extra={"user_id": user.id, "username": user.username})
+
 
             # return the result
             return Response({
@@ -49,6 +59,9 @@ class UserLoginAPIView(APIView):
                     'email': user.email,
                 }
             }, status=status.HTTP_200_OK)
+
+        # LOGGING
+        logger.warning("Login failed - invalid credentials", extra={"errors": serializer.errors})
 
         return Response({
             'error': serializer.errors,
@@ -64,14 +77,24 @@ class UserRegisterAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        # LOGGING
+        logger.info("Registration attempt", extra={"username": request.data.get("username", "N/A")})
+
         serializer = UserRegisterSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
+
+            # LOGGING
+            logger.info("Registration successful", extra={"username": request.data.get("username")})
+
             return Response(
                 {"success": True, "message": "User created successfully.",},
                 status=status.HTTP_201_CREATED
             )
+
+        # LOGGING
+        logger.warning("Registration failed - validation error", extra={"errors": serializer.errors})
 
         return Response(
             {"success": False, "error": serializer.errors},
