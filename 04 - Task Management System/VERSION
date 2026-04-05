@@ -23,3 +23,10 @@ Focus: Move from Monolith design to Microservice
 - user_service for related works for users
 - web_service illuminate the real front end with templates and html+css files
 - shared db(Postgresql) and inner http calls with request library
+
+V 3.0.0 - Improvements:
+Focus: Django REST Framework
+
+- DRF applied to all views and project
+- JWT applied to the project
+_ JWT shared key used for authenticate the token
