@@ -1,8 +1,7 @@
 import requests
-import json
 import jwt
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
+from .mixins import *
 
 from requests.exceptions import RequestException, HTTPError
 from .forms import *
@@ -221,7 +220,7 @@ class UserLogoutView(View):
         return redirect("core:home")
 
 # ✓ DRF Applied
-class DashboardView(View):
+class DashboardView(JWTRequiredMixin, View):
     """
     showing the dashboard for user with the information the user provide by
     the token it has and we extract it and put data in the places and
@@ -230,13 +229,7 @@ class DashboardView(View):
 
 
     def get(self, request):
-        user_id = request.session.get("user_id")
         token = request.session.get("jwt_token")
-
-        if not user_id or not token:
-            messages.error(request, "You need to login first!")
-            return redirect("core:home")
-
         # ---- Extract user info from token ----
         try:
             payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
@@ -289,7 +282,7 @@ class DashboardView(View):
         })
 
 # ✓ DRF Applied
-class UserTaskCreateView(View):
+class UserTaskCreateView(JWTRequiredMixin, View):
     form_class = TasksCreateForm
     template_class = "tasks/task_create.html"
 
@@ -299,20 +292,11 @@ class UserTaskCreateView(View):
         return render(request, self.template_class, {"form": form})
 
     def get(self, request):
-        token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         form = self.form_class()
         return render(request, self.template_class, {"form": form})
 
     def post(self, request):
         token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         form = self.form_class(request.POST)
         if not form.is_valid():
             return render(request, self.template_class, {"form": form})
@@ -355,14 +339,10 @@ class UserTaskCreateView(View):
         return self.handle_template_and_error(request, msg, form)
 
 # ✓ DRF Applied
-class TaskSoftDelete(View):
+class TaskSoftDelete(JWTRequiredMixin, View):
 
     def post(self, request, task_id):
         token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         try:
             response = requests.post(f"http://127.0.0.1:8000/tasks/task-soft-delete/{task_id}/",
                                      headers={"Authorization": f"Bearer {token}"},
@@ -407,17 +387,13 @@ class TaskSoftDelete(View):
             return redirect("core:dashboard")
 
 # ✓ DRF Applied
-class TaskUpdateView(View):
+class TaskUpdateView(JWTRequiredMixin, View):
     class_template = "tasks/task_update.html"
     class_form = TaskUpdateForm
 
     def get(self, request, task_id):
         # getting real_task to prefill the entries
         token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         try:
             # Use query parameters for GET (REST standard)
             response = requests.get(
@@ -463,10 +439,6 @@ class TaskUpdateView(View):
     def post(self, request, task_id):
         form = self.class_form(request.POST)
         token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         if form.is_valid():
             data = form.cleaned_data
             try:
@@ -526,15 +498,11 @@ class TaskUpdateView(View):
 # ✓ DRF Applied
 # need improvements, we don't need to take the whole tasks and then
 # filter them.
-class RecycleBinView(View):
+class RecycleBinView(JWTRequiredMixin, View):
     class_template = "tasks/recycle_bin.html"
 
     def get(self, request):
         token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         # ---- Fetch Tasks ----
         deleted_tasks = []
         deleted_count = 0
@@ -567,13 +535,9 @@ class RecycleBinView(View):
         })
 
 # ✓ DRF Applied
-class TaskRestoreView(View):
+class TaskRestoreView(JWTRequiredMixin, View):
     def post(self, request, task_id):
         token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
-
         try:
             response = requests.post(f"http://127.0.0.1:8000/tasks/task-restore/{task_id}/",
                                      headers={"Authorization": f"Bearer {token}"},
@@ -617,12 +581,9 @@ class TaskRestoreView(View):
             return redirect("core:recycle_bin")
 
 # ✓ DRF Applied
-class TaskHardDeleteView(View):
+class TaskHardDeleteView(JWTRequiredMixin, View):
     def post(self, request, task_id):
         token = request.session.get("jwt_token")
-        if not token:
-            messages.error(request, "You must login first.")
-            return redirect("core:home")
         headers = {"Authorization": f"Bearer {token}"}
 
         try:
