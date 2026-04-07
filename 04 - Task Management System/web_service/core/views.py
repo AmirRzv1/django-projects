@@ -1,3 +1,4 @@
+import logging
 import requests
 import jwt
 from django.conf import settings
@@ -11,17 +12,28 @@ from django.contrib import messages
 from django.template import TemplateDoesNotExist, TemplateSyntaxError
 from django.http import HttpResponseServerError
 
+logger = logging.getLogger(__name__)
+
 # ✓ Fixed | No changes for DRF
 class HomeView(View):
     def get(self, request):
         # just show the landing page so simple.
+        # LOGGER
+        logger.info("Home page visited")
+
         try:
             return render(request, "landing.html")
         except TemplateSyntaxError:
+            # LOGGER
+            logger.error("Landing page template syntax error")
             return HttpResponseServerError("Landing page template not found.")
         except TemplateDoesNotExist as e:
+            # LOGGER
+            logger.error("Landing page template not found", extra={"error": str(e)})
             return HttpResponseServerError(f"Template syntax error: {str(e)}")
         except Exception as e:
+            # LOGGER
+            logger.exception("Unexpected error on home page")
             return HttpResponseServerError(f"Unexpected error: {str(e)}")
 
 # ✓ DRF Applied
@@ -47,6 +59,11 @@ class UserRegisterView(View):
 
         except HTTPError:
             # Try to extract error message from service
+            # LOGGER
+            logger.warning(
+                "Registration HTTP error",
+                extra={"status_code": response.status_code}
+            )
             try:
                 error_data = response.json()
 
@@ -71,13 +88,20 @@ class UserRegisterView(View):
             except ValueError:
                 return False, f"Service error. Status code: {response.status_code}"
 
+
         except requests.Timeout:
+            # LOGGER
+            logger.error("Registration request timed out")
             return False, "Service timed out."
 
         except requests.ConnectionError:
+            # LOGGER
+            logger.error("Registration service unreachable")
             return False, "Service unavailable."
 
         except RequestException:
+            # LOGGER
+            logger.exception("Unexpected network error during registration")
             return False, "Unexpected network error."
 
         # Validate body existence
@@ -103,15 +127,24 @@ class UserRegisterView(View):
     def post(self, request):
         form = self.form_class(request.POST)
 
+        # LOGGER
+        logger.info("Registration attempt", extra={"username": request.POST.get("username", "N/A")})
+
         if not form.is_valid():
+            # LOGGER
+            logger.warning("Registration form invalid", extra={"errors": form.errors})
             messages.error(request, "Invalid form data.")
             return redirect("core:home")
 
         success, message = self.register_user(form.cleaned_data)
 
         if success:
+            # LOGGER
+            logger.info("Registration successful", extra={"username": form.cleaned_data.get("username")})
             messages.success(request, message)
         else:
+            # LOGGER
+            logger.warning("Registration failed", extra={"reason": message})
             messages.error(request, message)
 
         return redirect("core:home")
@@ -142,6 +175,8 @@ class UserLoginView(View):
 
     def post(self, request):
         form = self.form_class(request.POST)
+        # LOGGER
+        logger.info("Login attempt", extra={"username": request.POST.get("username", "N/A")})
         if form.is_valid():
             data = form.cleaned_data
             username = data.get("username")
@@ -157,20 +192,33 @@ class UserLoginView(View):
                     timeout=5,
                 )
 
+
             except requests.ConnectionError:
+                # LOGGER
+                logger.error("Login - auth service unreachable")
                 msg = "Cannot reach authentication server. Try again later."
                 return self.handle_template_and_error(request, msg, form)
 
             except requests.Timeout:
+                # LOGGER
+                logger.error("Login - auth service timed out")
                 msg = "Authentication server timed out. Try again later."
                 return self.handle_template_and_error(request, msg, form)
 
             except Exception as e:
+                # LOGGER
+                logger.exception("Login - unexpected error")
                 msg = f"Unexpected error: {str(e)}"
                 return self.handle_template_and_error(request, msg, form)
 
             # Handle failed response (4xx, 5xx)
             if response.status_code != 200:
+                # LOGGER
+                logger.warning(
+                    "Login failed",
+                    extra={"username": username, "status_code": response.status_code}
+                )
+
                 try:
                     error_data = response.json()
                     msg = error_data.get("errors", "Invalid credentials.")
@@ -198,6 +246,12 @@ class UserLoginView(View):
                 request.session["email"] = user_info.get("email")
                 request.session["user_is_authenticated"] = True
 
+                # ✅ ADDED: Log successful login (replaced print)
+                logger.info(
+                    "Login successful",
+                    extra={"user_id": user_info.get("id"), "username": user_info.get("username")}
+                )
+
                 messages.success(request, "User successfully logged in.")
                 return redirect("core:home")
             else:
@@ -213,6 +267,9 @@ class UserLogoutView(View):
         if not request.session.get("user_id"):
             messages.error(request, "You are not logged in.")
             return redirect("core:home")
+
+        # LOGGER
+        logger.info("User logged out", extra={"user_id": request.session.get("user_id")})
 
         request.session.flush()
 
@@ -230,14 +287,22 @@ class DashboardView(JWTRequiredMixin, View):
 
     def get(self, request):
         token = request.session.get("jwt_token")
+
+        # LOGGER
+        logger.info("Dashboard accessed", extra={"user_id": request.session.get("user_id")})
+
         # ---- Extract user info from token ----
         try:
             payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
+            # LOGGER
+            logger.warning("Dashboard - expired token", extra={"user_id": request.session.get("user_id")})
             messages.error(request, "Session expired. Please login again.")
             request.session.flush()
             return redirect("core:home")
         except jwt.InvalidTokenError:
+            # LOGGER
+            logger.warning("Dashboard - invalid token", extra={"user_id": request.session.get("user_id")})
             messages.error(request, "Invalid session. Please login again.")
             request.session.flush()
             return redirect("core:home")
@@ -271,7 +336,19 @@ class DashboardView(JWTRequiredMixin, View):
                 deleted_tasks = task_data.get("deleted_tasks", [])
                 deleted_count = task_data.get("deleted_count", 0)
 
+                # LOGGER
+                logger.info(
+                    "Dashboard tasks loaded",
+                    extra={
+                        "user_id": request.session.get("user_id"),
+                        "active_count": active_count,
+                        "deleted_count": deleted_count
+                    }
+                )
+
         except requests.exceptions.RequestException:
+            # LOGGER
+            logger.error("Dashboard - task service unavailable", extra={"user_id": request.session.get("user_id")})
             messages.warning(request, "Tasks service unavailable.")
 
         return render(request, "tasks/dashboard.html", {
@@ -298,7 +375,11 @@ class UserTaskCreateView(JWTRequiredMixin, View):
     def post(self, request):
         token = request.session.get("jwt_token")
         form = self.form_class(request.POST)
+        # LOGGER
+        logger.info("Task creation attempt via web", extra={"user_id": request.session.get("user_id")})
         if not form.is_valid():
+            # LOGGER
+            logger.warning("Task creation form invalid", extra={"errors": form.errors})
             return render(request, self.template_class, {"form": form})
 
         data = form.cleaned_data
@@ -315,6 +396,8 @@ class UserTaskCreateView(JWTRequiredMixin, View):
             response.raise_for_status()
 
         except (RequestException, HTTPError):
+            # LOGGER
+            logger.error("Task creation - task service error", extra={"user_id": request.session.get("user_id")})
             msg = "Task service unavailable. Please try again."
             return self.handle_template_and_error(request, msg, form)
 
@@ -332,6 +415,9 @@ class UserTaskCreateView(JWTRequiredMixin, View):
 
         # Logical validation
         if response_result.get("success"):
+            # LOGGER
+            logger.info("Task created via web",
+                        extra={"user_id": request.session.get("user_id"), "title": data["title"]})
             messages.success(request, "Task created successfully.")
             return redirect("core:dashboard")
 
@@ -343,6 +429,8 @@ class TaskSoftDelete(JWTRequiredMixin, View):
 
     def post(self, request, task_id):
         token = request.session.get("jwt_token")
+        # LOGGER
+        logger.info("Task soft delete via web", extra={"user_id": request.session.get("user_id"), "task_id": task_id})
         try:
             response = requests.post(f"http://127.0.0.1:8000/tasks/task-soft-delete/{task_id}/",
                                      headers={"Authorization": f"Bearer {token}"},
@@ -355,6 +443,8 @@ class TaskSoftDelete(JWTRequiredMixin, View):
                 return redirect("core:dashboard")
 
             if result.get("success"):
+                # LOGGER
+                logger.info("Task soft deleted via web", extra={"task_id": task_id})
                 messages.success(request, "Task soft deleted")
                 return redirect("core:dashboard")
 
@@ -365,15 +455,21 @@ class TaskSoftDelete(JWTRequiredMixin, View):
 
         # Handle network/timeout errors
         except requests.exceptions.Timeout:
+            # LOGGER
+            logger.error("Soft delete - timeout", extra={"task_id": task_id})
             messages.error(request, "Request timeout. Please try again")
             return redirect("core:dashboard")
 
         except requests.exceptions.ConnectionError:
+            # LOGGER
+            logger.error("Soft delete - connection error", extra={"task_id": task_id})
             messages.error(request, "Cannot connect to task service")
             return redirect("core:dashboard")
 
         # Handle HTTP errors (400, 404, 500)
         except requests.exceptions.HTTPError as e:
+            # LOGGER
+            logger.warning("Soft delete - HTTP error", extra={"task_id": task_id, "status": e.response.status_code})
             if e.response.status_code == 404:
                 messages.error(request, "Task not found")
             elif e.response.status_code == 400:
@@ -383,6 +479,8 @@ class TaskSoftDelete(JWTRequiredMixin, View):
             return redirect("core:dashboard")
 
         except Exception:
+            # LOGGER
+            logger.exception("Soft delete - unexpected error", extra={"task_id": task_id})
             messages.error(request, "An unexpected error occurred")
             return redirect("core:dashboard")
 
@@ -394,6 +492,9 @@ class TaskUpdateView(JWTRequiredMixin, View):
     def get(self, request, task_id):
         # getting real_task to prefill the entries
         token = request.session.get("jwt_token")
+
+        # ✅ ADDED: Log update page access
+        logger.info("Task update page accessed", extra={"user_id": request.session.get("user_id"), "task_id": task_id})
         try:
             # Use query parameters for GET (REST standard)
             response = requests.get(
@@ -439,6 +540,9 @@ class TaskUpdateView(JWTRequiredMixin, View):
     def post(self, request, task_id):
         form = self.class_form(request.POST)
         token = request.session.get("jwt_token")
+
+        # LOGGER
+        logger.info("Task update attempt", extra={"user_id": request.session.get("user_id"), "task_id": task_id})
         if form.is_valid():
             data = form.cleaned_data
             try:
@@ -462,6 +566,8 @@ class TaskUpdateView(JWTRequiredMixin, View):
                     return render(request, self.class_template, {"form": form})
 
                 if result.get("success"):
+                    # LOGGER
+                    logger.info("Task updated via web", extra={"task_id": task_id})
                     messages.success(request, "Task updated successfully")
                     return redirect("core:dashboard")
 
@@ -503,6 +609,9 @@ class RecycleBinView(JWTRequiredMixin, View):
 
     def get(self, request):
         token = request.session.get("jwt_token")
+
+        # LOGGER
+        logger.info("Recycle bin accessed", extra={"user_id": request.session.get("user_id")})
         # ---- Fetch Tasks ----
         deleted_tasks = []
         deleted_count = 0
@@ -516,11 +625,15 @@ class RecycleBinView(JWTRequiredMixin, View):
             )
 
             if task_response.status_code == 200:
+                # LOGGER
+                logger.info("Recycle bin loaded", extra={"deleted_count": deleted_count})
                 task_data = task_response.json()
                 deleted_tasks = task_data.get("deleted_tasks", [])
                 deleted_count = task_data.get("deleted_count", 0)
 
         except requests.exceptions.RequestException:
+            # LOGGER
+            logger.error("Recycle bin - task service unavailable")
             messages.warning(request, "Tasks service unavailable.")
 
         except (RequestException, HTTPError):
@@ -538,6 +651,9 @@ class RecycleBinView(JWTRequiredMixin, View):
 class TaskRestoreView(JWTRequiredMixin, View):
     def post(self, request, task_id):
         token = request.session.get("jwt_token")
+
+        # LOGGER
+        logger.info("Task restore via web", extra={"user_id": request.session.get("user_id"), "task_id": task_id})
         try:
             response = requests.post(f"http://127.0.0.1:8000/tasks/task-restore/{task_id}/",
                                      headers={"Authorization": f"Bearer {token}"},
@@ -551,6 +667,8 @@ class TaskRestoreView(JWTRequiredMixin, View):
                 return redirect("core:recycle_bin")
 
             if result.get("success"):
+                # LOGGER
+                logger.info("Task restored via web", extra={"task_id": task_id})
                 messages.success(request, "Task restored successfully")
                 return redirect("core:recycle_bin")
 
@@ -586,6 +704,9 @@ class TaskHardDeleteView(JWTRequiredMixin, View):
         token = request.session.get("jwt_token")
         headers = {"Authorization": f"Bearer {token}"}
 
+        # LOGGER
+        logger.info("Task hard delete via web", extra={"user_id": request.session.get("user_id"), "task_id": task_id})
+
         try:
             response = requests.post(f"http://127.0.0.1:8000/tasks/task-hard-delete/{task_id}/",
                                      headers=headers,
@@ -600,6 +721,8 @@ class TaskHardDeleteView(JWTRequiredMixin, View):
                 return redirect("core:recycle_bin")
 
             if result.get("success"):
+                # LOGGER
+                logger.info("Task hard deleted via web", extra={"task_id": task_id})
                 messages.success(request, "Task deleted permanently")
                 return redirect("core:recycle_bin")
 
